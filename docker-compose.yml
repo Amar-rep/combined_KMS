@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: postgres_1
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=password
+      - POSTGRESQL_DATABASE=kms
+      - POSTGRESQL_EXTRA_FLAGS=-c max_connections=200
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/bitnami/postgresql
+      - ./init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: ipfs_1
+    environment:
+      - IPFS_PROFILE=server
+    ports:
+      - "4001:4001"     
+      - "5001:5001"     
+      - "8080:8080"     
+    volumes:
+      - ipfs_data:/data/ipfs
+    healthcheck:
+      test: ["CMD-SHELL", "ipfs id || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+ 
+  kms:
+    build:
+      context: ./KMS
+      dockerfile: Dockerfile
+    container_name: kms
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/kms
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - IPFS_API_HOST=ipfs
+      - IPFS_API_PORT=5001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+ 
+  backend-hospital:
+    build:
+      context: ./backend_hospital
+      dockerfile: Dockerfile
+    container_name: backend-hospital
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hospital
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+
+volumes:
+  postgres_data:
+    driver: local
+  ipfs_data:
+    driver: local
+
+
+networks:
+  app-network:
+    driver: bridge
