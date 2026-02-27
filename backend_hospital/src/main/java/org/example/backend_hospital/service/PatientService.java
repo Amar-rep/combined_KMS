@@ -18,6 +18,8 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
     private final KmsClientService kmsClientService;
+    private final AuthenticationService authenticationService;
+
     @Lazy
     private final GroupService groupService;
 
@@ -42,6 +44,10 @@ public class PatientService {
         patient.setDateOfBirth(dto.getDateOfBirth());
         patient.setAddress(dto.getAddress());
         Patient savedPatient = patientRepository.save(patient);
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            authenticationService.createPatientCredential(savedPatient, dto.getPassword());
+        }
 
         CreateGroupDTO createGroupDTO = new CreateGroupDTO();
         createGroupDTO.setName("Default Group");

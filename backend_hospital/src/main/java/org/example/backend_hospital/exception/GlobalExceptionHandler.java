@@ -56,9 +56,38 @@ public class GlobalExceptionHandler {
                                 .body(errorResponse);
         }
 
+        @ExceptionHandler(BlockchainException.class)
+        public ResponseEntity<ErrorResponseDTO> handleBlockchainException(
+                        BlockchainException ex, HttpServletRequest request) {
+
+                log.error("Blockchain error [{}]: {}", ex.getErrorCode(), ex.getMessage());
+
+                // TX_FAILED is a client-side logic error (bad input / contract condition not
+                // met)
+                HttpStatus httpStatus = ex.getErrorCode() == BlockchainException.ErrorCode.TX_FAILED
+                                ? HttpStatus.valueOf(422) // 422 Unprocessable Entity
+                                : HttpStatus.BAD_GATEWAY; // 502 for node/config/timeout
+
+                ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                                LocalDateTime.now(),
+                                httpStatus.value(),
+                                "Blockchain Error",
+                                friendlyBlockchainMessage(ex),
+                                "BLOCKCHAIN_" + ex.getErrorCode().name(),
+                                request.getRequestURI());
+
+                // Always include developer detail for blockchain errors — hard to debug
+                // otherwise
+                errorResponse.setDeveloperMessage(ex.getMessage());
+
+                return ResponseEntity.status(httpStatus).body(errorResponse);
+        }
+
         @ExceptionHandler(RuntimeException.class)
         public ResponseEntity<ErrorResponseDTO> handleRuntimeException(
                         RuntimeException ex, HttpServletRequest request) {
+
+                log.error("Unhandled RuntimeException at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
                 ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                                 LocalDateTime.now(),
@@ -134,5 +163,20 @@ public class GlobalExceptionHandler {
                 return ResponseEntity
                                 .status(HttpStatus.BAD_GATEWAY)
                                 .body(errorResponse);
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────────────
+
+        private String friendlyBlockchainMessage(BlockchainException ex) {
+                return switch (ex.getErrorCode()) {
+                        case TX_FAILED -> "The transaction was rejected by the smart contract. " +
+                                        "Check that all referenced users/records exist and are active.";
+                        case NODE_ERROR -> "Could not communicate with the blockchain node. " +
+                                        "Ensure the node is running and the RPC URL is correct.";
+                        case RECEIPT_TIMEOUT -> "The transaction was submitted but the confirmation " +
+                                        "receipt timed out. It may still be pending on-chain.";
+                        case CONFIG_ERROR -> "Blockchain integration is not configured correctly. " +
+                                        "Check hospital.blockchain.* properties.";
+                };
         }
 }

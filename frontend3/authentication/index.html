@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Authentication Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Authentication Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Doctor Login -->
+    <section class="card">
+        <h2>Doctor Login <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /auth/doctor/login</p>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="dl-email" placeholder="doctor@hospital.com" />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="dl-password" placeholder="Password" />
+        </div>
+        <button onclick="doctorLogin()">Doctor Login</button>
+    </section>
+
+    <!-- Patient Login -->
+    <section class="card">
+        <h2>Patient Login <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /auth/patient/login</p>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="pl-email" placeholder="patient@email.com" />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="pl-password" placeholder="Password" />
+        </div>
+        <button onclick="patientLogin()">Patient Login</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

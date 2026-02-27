@@ -1,6 +1,8 @@
 package org.example.backend_hospital.service;
 
 import org.example.backend_hospital.dto.kms.KmsAllowAccessDTO;
+import org.example.backend_hospital.dto.kms.KmsAllowAccessInterHospitalDTO;
+import org.example.backend_hospital.dto.kms.KmsAllowAccessInterHospitalResponseDTO;
 import org.example.backend_hospital.dto.kms.KmsAllowAccessResponseDTO;
 import org.example.backend_hospital.dto.kms.KmsDownloadFileDTO;
 import org.example.backend_hospital.dto.kms.KmsUploadFileDTO;
@@ -46,7 +48,7 @@ public class DocumentService {
         }
 
         //
-        
+
         return kmsClientService.uploadFile(documentDTO);
     }
 
@@ -77,6 +79,15 @@ public class DocumentService {
 
     public KmsAllowAccessResponseDTO giveAccess(KmsAllowAccessDTO request) {
         KmsAllowAccessResponseDTO response = kmsClientService.allowAccess(request);
+        String hospitalId = appConfig.getId();
+        groupAccessService.syncGroupAccessFromKms(hospitalId);
+        return response;
+    }
+
+    public KmsAllowAccessInterHospitalResponseDTO allowAccessInterHospital(
+            KmsAllowAccessInterHospitalDTO request) {
+        KmsAllowAccessInterHospitalResponseDTO response = kmsClientService
+                .allowAccessInterHospital(request);
         String hospitalId = appConfig.getId();
         groupAccessService.syncGroupAccessFromKms(hospitalId);
         return response;

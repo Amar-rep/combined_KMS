@@ -1,6 +1,8 @@
 package com.example.kms.service;
 
 import com.example.kms.dto.AllowAccessDTO;
+import com.example.kms.dto.AllowAccessInterHospitalDTO;
+import com.example.kms.dto.AllowAccessInterHospitalResponseDTO;
 import com.example.kms.dto.AllowAccessResponseDTO;
 import com.example.kms.dto.DownloadFileDTO;
 import com.example.kms.dto.DownloadResponseDTO;
@@ -8,6 +10,7 @@ import com.example.kms.dto.RevokeAccessDTO;
 import com.example.kms.dto.UploadFileDTO;
 import com.example.kms.dto.UploadResponseDTO;
 import com.example.kms.entity.AppUser;
+import com.example.kms.entity.DocumentRequest;
 import com.example.kms.entity.GroupKey;
 
 import com.example.kms.entity.Record;
@@ -15,6 +18,7 @@ import com.example.kms.exception.InvalidFileException;
 import com.example.kms.repository.GroupKeyRepository;
 import com.example.kms.repository.HospitalRepository;
 import com.example.kms.repository.RecordRepository;
+import com.example.kms.repository.DocumentRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,6 +48,7 @@ public class FileService {
     private final NotificationService notificationService;
     private final HospitalRepository hospitalRepository;
     private final com.example.kms.repository.GroupAccessRepository groupAccessRepository;
+    private final DocumentRequestRepository documentRequestRepository;
 
     @Transactional
     public UploadResponseDTO uploadFile(UploadFileDTO uploadFileDTO) {
@@ -215,6 +220,84 @@ public class FileService {
         } catch (Exception e) {
             log.error("Allow access failed", e);
             throw new RuntimeException("Allow access failed: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public AllowAccessInterHospitalResponseDTO allowAccessInterHospital(
+            AllowAccessInterHospitalDTO dto) {
+        try {
+
+            DocumentRequest docRequest = documentRequestRepository
+                    .findById(dto.getDocumentRequestId())
+                    .orElseThrow(() -> new RuntimeException(
+                            "Document request not found with ID: " + dto.getDocumentRequestId()));
+
+            if (!"PENDING".equals(docRequest.getStatus())) {
+                throw new RuntimeException(
+                        "Document request is not in PENDING status. Current status: " + docRequest.getStatus());
+            }
+
+            AppUser receiver = userService.findByKeccak(dto.getReceiverIdKeccak());
+
+            boolean isSignatureValid = keyService.verifySignature(
+                    dto.getNonce(),
+                    dto.getSignature(),
+                    dto.getReceiverIdKeccak());
+
+            if (!isSignatureValid) {
+                throw new RuntimeException("Invalid signature for user: " + dto.getReceiverIdKeccak());
+            }
+
+            AppUser sender = docRequest.getSenderIdKeccak();
+            if (sender == null) {
+                throw new RuntimeException("Sender doctor not found on document request");
+            }
+
+            if (docRequest.getReceiverIdKeccak() == null
+                    || !docRequest.getReceiverIdKeccak().getUserIdKeccak().equals(dto.getReceiverIdKeccak())) {
+                throw new RuntimeException(
+                        "The user approving the request is not the  receiver  ");
+            }
+
+            GroupKey groupKey = docRequest.getGroup();
+            if (groupKey == null) {
+                throw new RuntimeException("Group not found on document request");
+            }
+
+            if (!groupKey.getUser().getId().equals(receiver.getId())) {
+                throw new RuntimeException("User " + dto.getReceiverIdKeccak() +
+                        " is not the owner of group " + groupKey.getGroupId());
+            }
+
+            Hospital senderHospital = docRequest.getSenderHospital();
+            Hospital receiverHospital = docRequest.getReceiverHospital();
+            if (senderHospital == null || receiverHospital == null) {
+                throw new RuntimeException("Invalid hospitals on document request");
+            }
+
+            String groupKeyBase64 = groupKey.getGroupKeyBase64();
+            SecretKey groupSecretKey = keyService.base64ToSecretKey(groupKeyBase64, "AES");
+
+            PublicKey senderPublicKey = keyService.convertToECPublicKey(sender.getPublicKey());
+
+            String encryptedGroupKey = keyService.encryptKeyWithPublicKey(groupSecretKey, senderPublicKey);
+            log.info("Successfully encrypted group key for doctor: {}", sender.getUserIdKeccak());
+
+            groupAccessService.createGroupAccess(groupKey, sender, senderHospital, encryptedGroupKey);
+
+            docRequest.setStatus("APPROVED");
+            documentRequestRepository.save(docRequest);
+
+            return new com.example.kms.dto.AllowAccessInterHospitalResponseDTO(
+                    groupKey.getGroupId(),
+                    encryptedGroupKey,
+                    groupKeyBase64,
+                    sender.getUserIdKeccak());
+
+        } catch (Exception e) {
+
+            throw new RuntimeException("Allow access inter-hospital failed: " + e.getMessage(), e);
         }
     }
 

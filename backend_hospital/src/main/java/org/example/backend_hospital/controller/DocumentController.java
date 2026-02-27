@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.example.backend_hospital.dto.kms.KmsDownloadFileDTO;
 import org.example.backend_hospital.dto.kms.KmsAllowAccessDTO;
+import org.example.backend_hospital.dto.kms.KmsAllowAccessInterHospitalDTO;
+import org.example.backend_hospital.dto.kms.KmsAllowAccessInterHospitalResponseDTO;
 import org.example.backend_hospital.dto.kms.KmsAllowAccessResponseDTO;
 import org.example.backend_hospital.dto.kms.KmsRevokeAccessDTO;
 import org.example.backend_hospital.dto.kms.KmsRevokeAccessResponseDTO;
@@ -32,21 +34,27 @@ public class DocumentController {
     @PostMapping("/download")
     public ResponseEntity<byte[]> downloadDocument(
             @RequestBody KmsDownloadFileDTO request) {
-        log.info("[DocumentController] downloadDocument called with input: {}", request);
+
         return ResponseEntity.ok(documentService.downloadDocument(request));
     }
 
     @PostMapping("/access")
     public ResponseEntity<KmsAllowAccessResponseDTO> giveAccess(
             @RequestBody KmsAllowAccessDTO request) {
-        log.info("[DocumentController] giveAccess called with input: {}", request);
+
         return ResponseEntity.ok(documentService.giveAccess(request));
     }
 
     @PostMapping("/revoke-access")
     public ResponseEntity<KmsRevokeAccessResponseDTO> revokeAccess(
             @RequestBody KmsRevokeAccessDTO request) {
-        log.info("[DocumentController] revokeAccess called with input: {}", request);
         return ResponseEntity.ok(documentService.revokeAccess(request));
+    }
+
+    @PostMapping("/allow-access-inter-hospital")
+    public ResponseEntity<KmsAllowAccessInterHospitalResponseDTO> allowAccessInterHospital(
+            @RequestBody KmsAllowAccessInterHospitalDTO request) {
+
+        return ResponseEntity.ok(documentService.allowAccessInterHospital(request));
     }
 }

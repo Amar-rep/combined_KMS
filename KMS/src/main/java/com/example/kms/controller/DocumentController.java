@@ -67,6 +67,22 @@ public class DocumentController {
         }
     }
 
+    @PostMapping("/allow-access-inter-hospital")
+    public ResponseEntity<AllowAccessInterHospitalResponseDTO> allowAccessInterHospital(
+            @RequestBody AllowAccessInterHospitalDTO allowAccessInterHospitalDTO) {
+        try {
+
+            AllowAccessInterHospitalResponseDTO response = fileService
+                    .allowAccessInterHospital(allowAccessInterHospitalDTO);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Allow access inter hospital failed", e);
+            throw e;
+        }
+    }
+
     @PostMapping("/revoke-access")
     public ResponseEntity<RevokeAccessResponseDTO> revokeAccess(@RequestBody RevokeAccessDTO revokeAccessDTO) {
         try {

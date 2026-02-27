@@ -12,4 +12,5 @@ public class RegisterPatientDTO {
     private String phone;
     private LocalDate dateOfBirth;
     private String address;
+    private String password;
 }

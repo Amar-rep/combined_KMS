@@ -72,6 +72,11 @@ public class NotificationService {
         return notificationRepository.findByHospital_HospitalId(hospitalId);
     }
 
+    public List<Notification> getNotificationsBySenderAndHospital(String senderIdKeccak, String hospitalId) {
+        return notificationRepository.findBySenderIdKeccak_UserIdKeccakAndHospital_HospitalId(senderIdKeccak,
+                hospitalId);
+    }
+
     public Notification getNotificationById(Long id) {
         return notificationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found with ID: " + id));

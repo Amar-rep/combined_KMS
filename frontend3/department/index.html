@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Department Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Department Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Create Department -->
+    <section class="card">
+        <h2>Create Department <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/hospital/departments</p>
+        <div class="form-group">
+            <label>Department Name</label>
+            <input type="text" id="cd-name" placeholder="e.g. Cardiology" />
+        </div>
+        <button onclick="createDepartment()">Create Department</button>
+    </section>
+
+    <!-- Get Department By ID -->
+    <section class="card">
+        <h2>Get Department By ID <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/departments/{id}</p>
+        <div class="form-group">
+            <label>Department ID</label>
+            <input type="number" id="gd-id" placeholder="Department ID" />
+        </div>
+        <button onclick="getDepartmentById()">Get Department</button>
+    </section>
+
+    <!-- Get All Departments -->
+    <section class="card">
+        <h2>Get All Departments <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/departments</p>
+        <button onclick="getAllDepartments()">Get All Departments</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

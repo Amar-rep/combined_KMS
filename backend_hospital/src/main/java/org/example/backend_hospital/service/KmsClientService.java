@@ -23,6 +23,8 @@ public class KmsClientService {
     };
     private final ParameterizedTypeReference<List<KmsGroupAccessDTO>> listGroupAccessType = new ParameterizedTypeReference<>() {
     };
+    private final ParameterizedTypeReference<List<KmsDocumentRequestDTO>> listDocumentRequestType = new ParameterizedTypeReference<>() {
+    };
 
     public KmsAppUserDTO getUserByKeccak(String keccakId) {
         try {
@@ -104,6 +106,22 @@ public class KmsClientService {
         } catch (Exception e) {
 
             throw new RuntimeException("KMS Allow Access Failed", e);
+        }
+    }
+
+    public KmsAllowAccessInterHospitalResponseDTO allowAccessInterHospital(KmsAllowAccessInterHospitalDTO request) {
+        try {
+            return restClient.post()
+                    .uri("/api/files/allow-access-inter-hospital")
+                    .body(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, res) -> {
+                        String errorBody = new String(res.getBody().readAllBytes());
+                        throw new RuntimeException("Error allowing inter-hospital access: " + errorBody);
+                    })
+                    .body(KmsAllowAccessInterHospitalResponseDTO.class);
+        } catch (Exception e) {
+            throw new RuntimeException("KMS Allow Access Inter-Hospital Failed", e);
         }
     }
 
@@ -207,6 +225,19 @@ public class KmsClientService {
         }
     }
 
+    public List<KmsNotificationDTO> getNotificationsBySenderAndHospital(String senderIdKeccak, String hospitalId) {
+        try {
+            return restClient.get()
+                    .uri("/api/kms/notifications/sender/{senderIdKeccak}/hospital/{hospitalId}", senderIdKeccak,
+                            hospitalId)
+                    .retrieve()
+                    .body(listNotificationType);
+        } catch (Exception e) {
+            log.error("Failed to get notifications by sender and hospital from KMS", e);
+            throw new RuntimeException("KMS Get Notifications By Sender And Hospital Failed", e);
+        }
+    }
+
     // group-access points
     //////////////////////////////////////////////////////////////////////
     ///
@@ -247,6 +278,47 @@ public class KmsClientService {
         } catch (Exception e) {
             log.error("Failed to fetch records from KMS for groupId {}", groupId, e);
             throw new RuntimeException("KMS Get Records Failed", e);
+        }
+    }
+
+    // document-request points
+    //////////////////////////////////////////////////////////////////////
+    ///
+    public KmsDocumentRequestDTO createDocumentRequest(KmsCreateDocumentRequestDTO request) {
+        try {
+            return restClient.post()
+                    .uri("/api/document-requests")
+                    .body(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, res) -> {
+                        String errorBody = new String(res.getBody().readAllBytes());
+                        throw new RuntimeException("Error creating document request: " + errorBody);
+                    })
+                    .body(KmsDocumentRequestDTO.class);
+        } catch (Exception e) {
+            throw new RuntimeException("KMS Create Document Request Failed", e);
+        }
+    }
+
+    public List<KmsDocumentRequestDTO> getDocumentRequestsByReceiver(String receiverIdKeccak) {
+        try {
+            return restClient.get()
+                    .uri("/api/document-requests/receiver/{receiverIdKeccak}", receiverIdKeccak)
+                    .retrieve()
+                    .body(listDocumentRequestType);
+        } catch (Exception e) {
+            throw new RuntimeException("KMS Get Document Requests By Receiver Failed", e);
+        }
+    }
+
+    public List<KmsDocumentRequestDTO> getDocumentRequestsByReceiverAndStatus(String receiverIdKeccak, String status) {
+        try {
+            return restClient.get()
+                    .uri("/api/document-requests/receiver/{receiverIdKeccak}/status/{status}", receiverIdKeccak, status)
+                    .retrieve()
+                    .body(listDocumentRequestType);
+        } catch (Exception e) {
+            throw new RuntimeException("KMS Get Document Requests By Receiver And Status Failed", e);
         }
     }
 

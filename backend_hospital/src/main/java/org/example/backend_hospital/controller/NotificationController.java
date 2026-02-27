@@ -52,4 +52,11 @@ public class NotificationController {
     public ResponseEntity<List<KmsNotificationDTO>> getNotificationsByHospitalId(@PathVariable String hospitalId) {
         return ResponseEntity.ok(notificationService.getNotificationsByHospitalId(hospitalId));
     }
+
+    @GetMapping("/sender/{senderIdKeccak}/hospital/{hospitalId}")
+    public ResponseEntity<List<KmsNotificationDTO>> getNotificationsBySenderAndHospital(
+            @PathVariable String senderIdKeccak,
+            @PathVariable String hospitalId) {
+        return ResponseEntity.ok(notificationService.getNotificationsBySenderAndHospital(senderIdKeccak, hospitalId));
+    }
 }

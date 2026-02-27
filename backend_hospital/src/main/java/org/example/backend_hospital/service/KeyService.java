@@ -12,7 +12,6 @@ import org.web3j.utils.Numeric;
 import org.example.backend_hospital.entity.Patient;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -33,7 +32,6 @@ import java.security.Security;
 import java.util.Base64;
 import java.util.Arrays;
 import org.web3j.crypto.Hash;
-
 
 @Service
 public class KeyService {
@@ -64,7 +62,6 @@ public class KeyService {
         this.userService = userService;
     }
 
-
     public SecretKey generateDEK() {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(AES_ALGORITHM);
@@ -75,7 +72,6 @@ public class KeyService {
         }
     }
 
-
     public SecretKey generateGroupKey() {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(AES_ALGORITHM);
@@ -85,7 +81,6 @@ public class KeyService {
             throw new RuntimeException("Failed to generate Group Key", e);
         }
     }
-
 
     public String encryptKeyWithPublicKey(SecretKey keyToEncrypt, PublicKey publicKey) {
         try {
@@ -99,16 +94,20 @@ public class KeyService {
             ECPublicKey ephemeralPubKey = (ECPublicKey) ephemeralKeyPair.getPublic();
             byte[] ephemeralPubKeyBytes = ephemeralPubKey.getQ().getEncoded(false); // false = uncompressed
 
-            // 3. Perform ECDH to derive shared secret
-            KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH", BOUNCY_CASTLE_PROVIDER);
-            keyAgreement.init(ephemeralKeyPair.getPrivate());
-            keyAgreement.doPhase(publicKey, true);
-            byte[] sharedSecret = keyAgreement.generateSecret();
+            // 3. Perform ECDH to derive shared secret.
+            // CRITICAL: eccrypto uses the full uncompressed point (65 bytes) for the hash,
+            // not just the X coordinate which standard KeyAgreement returns!
+            ECPublicKey recipientPubKey = (ECPublicKey) publicKey;
+            ECPoint sharedPoint = recipientPubKey.getQ()
+                    .multiply(((org.bouncycastle.jce.interfaces.ECPrivateKey) ephemeralKeyPair.getPrivate()).getD())
+                    .normalize();
+            byte[] sharedSecretFullPoint = sharedPoint.getEncoded(false); // 65 bytes: 0x04 || X || Y
 
             // 4. Derive encryption key and MAC key from shared secret using SHA-512
-            // eccrypto uses SHA-512 hash of shared secret, split into two 32-byte keys
+            // eccrypto uses SHA-512 hash of the full shared secret point, split into two
+            // 32-byte keys
             MessageDigest sha512 = MessageDigest.getInstance("SHA-512");
-            byte[] derivedKey = sha512.digest(sharedSecret);
+            byte[] derivedKey = sha512.digest(sharedSecretFullPoint);
             byte[] encryptionKey = Arrays.copyOfRange(derivedKey, 0, 32); // First 32 bytes for AES-256
             byte[] macKey = Arrays.copyOfRange(derivedKey, 32, 64); // Last 32 bytes for HMAC
 
@@ -122,8 +121,8 @@ public class KeyService {
             cipher.init(Cipher.ENCRYPT_MODE, aesKey, new IvParameterSpec(iv));
             byte[] ciphertext = cipher.doFinal(keyToEncrypt.getEncoded());
 
-            // 7. Calculate HMAC-SHA256 over (IV + ephemeralPubKey + ciphertext)
-            // This matches eccrypto library format
+            // 7. Calculate HMAC-SHA256 over (macKey)
+            // eccrypto order: hmac.update(iv + ephemeralPubKey + ciphertext)
             Mac hmac = Mac.getInstance("HmacSHA256");
             hmac.init(new SecretKeySpec(macKey, "HmacSHA256"));
             hmac.update(iv);
@@ -131,20 +130,29 @@ public class KeyService {
             hmac.update(ciphertext);
             byte[] mac = hmac.doFinal();
 
-            // 8. Combine: [ephemeralPubKey(65)] + [iv(16)] + [ciphertext] + [mac(32)]
-            ByteBuffer buffer = ByteBuffer.allocate(
-                    ephemeralPubKeyBytes.length + iv.length + ciphertext.length + mac.length);
-            buffer.put(ephemeralPubKeyBytes);
-            buffer.put(iv);
-            buffer.put(ciphertext);
-            buffer.put(mac);
+            // 8. Construct a JSON string representing the exact object eccrypto expects
+            // eccrypto.decrypt expects: { iv: Buffer, ephemPublicKey: Buffer, ciphertext:
+            // Buffer, mac: Buffer }
+            // We return a JSON string where the values are Base64 encoded. The frontend
+            // must parse
+            // the JSON and convert the base64 strings back to Buffers before passing to
+            // eccrypto.decrypt().
+            String jsonFormat = String.format(
+                    "{\"iv\":\"%s\",\"ephemPublicKey\":\"%s\",\"ciphertext\":\"%s\",\"mac\":\"%s\"}",
+                    Base64.getEncoder().encodeToString(iv),
+                    Base64.getEncoder().encodeToString(ephemeralPubKeyBytes),
+                    Base64.getEncoder().encodeToString(ciphertext),
+                    Base64.getEncoder().encodeToString(mac));
 
-            return Base64.getEncoder().encodeToString(buffer.array());
+            // We encode the JSON string itself into Base64 so it remains a single String
+            // output
+            // for the rest of your Java application, just like before.
+            return Base64.getEncoder().encodeToString(jsonFormat.getBytes(StandardCharsets.UTF_8));
+
         } catch (GeneralSecurityException e) {
             throw new RuntimeException("Failed to encrypt key with EC public key", e);
         }
     }
-
 
     public PublicKey convertToECPublicKey(byte[] publicKeyBytes) {
         try {
@@ -169,10 +177,8 @@ public class KeyService {
         }
     }
 
-
     public PublicKey convertToECPublicKey(BigInteger publicKeyBigInt) {
         byte[] publicKeyBytes = publicKeyBigInt.toByteArray();
-
 
         byte[] adjustedBytes = new byte[64];
         if (publicKeyBytes.length >= 64) {
@@ -183,7 +189,6 @@ public class KeyService {
 
         return convertToECPublicKey(adjustedBytes);
     }
-
 
     public String encryptDEKWithGroupKey(SecretKey dek, SecretKey groupKey) {
         try {
@@ -233,22 +238,18 @@ public class KeyService {
         }
     }
 
-
     public String generateGroupID() {
         return generateRandomString(GROUP_ID_LENGTH);
     }
-
 
     public String generateRecordID() {
         return generateRandomString(RECORD_ID_LENGTH);
     }
 
-
     public SecretKey base64ToSecretKey(String base64Key, String algorithm) {
         byte[] decodedKey = Base64.getDecoder().decode(base64Key);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithm);
     }
-
 
     public String secretKeyToBase64(SecretKey secretKey) {
         if (secretKey == null) {
@@ -270,15 +271,14 @@ public class KeyService {
         return sb.toString();
     }
 
-
     public boolean verifySignature(String nonce, String signatureBase64, String userIdKeccak) {
         try {
             Patient user = userService.findByKeccakId(userIdKeccak);
             if (user == null)
                 return false;
-          //  byte[] storedPublicKey = user.getPublicKey();// will fix later
+            // byte[] storedPublicKey = user.getPublicKey();// will fix later
 
-            byte[] storedPublicKey=new byte[56];
+            byte[] storedPublicKey = new byte[56];
             byte[] signatureBytes = Base64.getDecoder().decode(signatureBase64);
 
             if (signatureBytes.length != 65) {
@@ -292,7 +292,6 @@ public class KeyService {
             if (v < 27) {
                 v = (byte) (v + 27);
             }
-
 
             byte[] messagePrefixHash = Sign.getEthereumMessageHash(nonce.getBytes(StandardCharsets.UTF_8));
 

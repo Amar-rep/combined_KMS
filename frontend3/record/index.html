@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Record Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Record Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Get Records By Group -->
+    <section class="card">
+        <h2>Get Records By Group <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/records/group/{groupId}</p>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="rg-groupId" placeholder="Group ID" />
+        </div>
+        <button onclick="getRecordsByGroup()">Get Records By Group</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

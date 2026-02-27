@@ -9,6 +9,8 @@ import org.example.backend_hospital.entity.GroupAccess;
 import org.example.backend_hospital.repository.DoctorRepository;
 import org.example.backend_hospital.repository.GroupAccessRepository;
 import org.example.backend_hospital.repository.GroupRepository;
+import org.example.backend_hospital.config.AppConfig;
+import org.example.backend_hospital.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class GroupAccessService {
     private final GroupRepository groupRepository;
     private final DoctorRepository doctorRepository;
     private final KmsClientService kmsClientService;
+    private final AppConfig appConfig;
 
     public List<GroupAccess> getByHospitalId(String hospitalId) {
         return groupAccessRepository.findByHospitalId(hospitalId);
@@ -79,5 +82,14 @@ public class GroupAccessService {
     public void syncGroupAccess(String groupId, String doctorKeccak, String hospitalId) {
         // we can optmize later
         syncGroupAccessFromKms(hospitalId);
+    }
+
+    public String getEncryptedGroupKey(String groupId, String doctorKeccak) {
+        String hospitalId = appConfig.getId();
+        return groupAccessRepository.findByGroup_GroupIdAndDoctor_DoctorIdKeccakAndHospitalId(
+                groupId, doctorKeccak, hospitalId)
+                .map(GroupAccess::getEncGroupKey)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Group access not found for group: " + groupId + " and doctor: " + doctorKeccak));
     }
 }

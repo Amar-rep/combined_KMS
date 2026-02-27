@@ -16,4 +16,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             String hospitalId);
 
     List<Notification> findByHospital_HospitalId(String hospitalId);
+
+    List<Notification> findBySenderIdKeccak_UserIdKeccakAndHospital_HospitalId(String senderIdKeccak,
+            String hospitalId);
 }

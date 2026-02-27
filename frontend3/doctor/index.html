@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Doctor Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Doctor Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Register Doctor -->
+    <section class="card">
+        <h2>Register Doctor <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/hospital/doctors/register</p>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="rd-name" placeholder="Full Name" />
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="rd-email" placeholder="doctor@hospital.com" />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="rd-password" placeholder="Password" />
+        </div>
+        <div class="form-group">
+            <label>Department ID</label>
+            <input type="number" id="rd-departmentId" placeholder="Department ID" />
+        </div>
+        <div class="form-group">
+            <label>Specialty</label>
+            <input type="text" id="rd-specialty" placeholder="e.g. Cardiologist" />
+        </div>
+        <button onclick="registerDoctor()">Register Doctor</button>
+    </section>
+
+    <!-- Get Doctor By ID -->
+    <section class="card">
+        <h2>Get Doctor By ID <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/doctors/{id}</p>
+        <div class="form-group">
+            <label>Doctor ID</label>
+            <input type="number" id="gd-id" placeholder="Doctor ID" />
+        </div>
+        <button onclick="getDoctorById()">Get Doctor</button>
+    </section>
+
+    <!-- Get Doctor By Keccak ID -->
+    <section class="card">
+        <h2>Get Doctor By Keccak ID <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/doctors/keccak/{doctorIdKeccak}</p>
+        <div class="form-group">
+            <label>Keccak ID</label>
+            <input type="text" id="gk-keccak" placeholder="0x..." />
+        </div>
+        <button onclick="getDoctorByKeccak()">Get By Keccak</button>
+    </section>
+
+    <!-- Get Doctors By Department -->
+    <section class="card">
+        <h2>Get Doctors By Department <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/doctors/department/{departmentId}</p>
+        <div class="form-group">
+            <label>Department ID</label>
+            <input type="number" id="gdep-id" placeholder="Department ID" />
+        </div>
+        <button onclick="getDoctorsByDepartment()">Get By Department</button>
+    </section>
+
+    <!-- Get All Doctors -->
+    <section class="card">
+        <h2>Get All Doctors <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/hospital/doctors</p>
+        <button onclick="getAllDoctors()">Get All Doctors</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

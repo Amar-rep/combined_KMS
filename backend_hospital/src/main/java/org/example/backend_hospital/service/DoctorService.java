@@ -19,6 +19,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
     private final KmsClientService kmsClientService;
+    private final AuthenticationService authenticationService;
 
     public Doctor registerDoctor(RegisterDoctorDTO dto) {
         if (doctorRepository.findByDoctorIdKeccak(dto.getDoctorIdKeccak()).isPresent()) {
@@ -42,7 +43,13 @@ public class DoctorService {
             doctor.setDepartment(department);
         }
 
-        return doctorRepository.save(doctor);
+        Doctor savedDoctor = doctorRepository.save(doctor);
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            authenticationService.createDoctorCredential(savedDoctor, dto.getPassword());
+        }
+
+        return savedDoctor;
     }
 
     public Doctor findById(Long id) {

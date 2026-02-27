@@ -10,4 +10,13 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
     private String id;
     private boolean debugMode;
+    private Blockchain blockchain;
+
+    @Data
+    public static class Blockchain {
+        private String nodeUrl;
+        private String contractAddress;
+        private String privateKey;
+        private Long chainId;
+    }
 }

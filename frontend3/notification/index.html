@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Notification Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Notification Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Create Notification -->
+    <section class="card">
+        <h2>Create Notification <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/notifications</p>
+        <div class="form-group">
+            <label>Sender ID Keccak</label>
+            <input type="text" id="cn-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Receiver ID Keccak</label>
+            <input type="text" id="cn-receiver" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Hospital ID</label>
+            <input type="text" id="cn-hospitalId" placeholder="Hospital ID" />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="cn-groupId" placeholder="Group ID" />
+        </div>
+        <button onclick="createNotification()">Create Notification</button>
+    </section>
+
+    <!-- Get Notification By ID -->
+    <section class="card">
+        <h2>Get Notification By ID <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/notifications/{id}</p>
+        <div class="form-group">
+            <label>Notification ID</label>
+            <input type="number" id="gn-id" placeholder="ID" />
+        </div>
+        <button onclick="getNotificationById()">Get Notification</button>
+    </section>
+
+    <!-- Get By Receiver -->
+    <section class="card">
+        <h2>Get By Receiver <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/notifications/receiver/{receiverIdKeccak}</p>
+        <div class="form-group">
+            <label>Receiver Keccak</label>
+            <input type="text" id="gr-receiver" placeholder="0x..." />
+        </div>
+        <button onclick="getByReceiver()">Get By Receiver</button>
+    </section>
+
+    <!-- Get Active By Receiver -->
+    <section class="card">
+        <h2>Get Active Notifications <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/notifications/receiver/{receiverIdKeccak}/active</p>
+        <div class="form-group">
+            <label>Receiver Keccak</label>
+            <input type="text" id="ga-receiver" placeholder="0x..." />
+        </div>
+        <button onclick="getActiveNotifications()">Get Active</button>
+    </section>
+
+    <!-- Get By Receiver + Hospital -->
+    <section class="card">
+        <h2>Get By Receiver &amp; Hospital <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/notifications/receiver/{receiverIdKeccak}/hospital/{hospitalId}</p>
+        <div class="form-group">
+            <label>Receiver Keccak</label>
+            <input type="text" id="grh-receiver" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Hospital ID</label>
+            <input type="text" id="grh-hospitalId" placeholder="Hospital ID" />
+        </div>
+        <button onclick="getByReceiverAndHospital()">Get By Receiver &amp; Hospital</button>
+    </section>
+
+    <!-- Get By Hospital ID -->
+    <section class="card">
+        <h2>Get By Hospital ID <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/notifications/hospital/{hospitalId}</p>
+        <div class="form-group">
+            <label>Hospital ID</label>
+            <input type="text" id="gh-hospitalId" placeholder="Hospital ID" />
+        </div>
+        <button onclick="getByHospitalId()">Get By Hospital ID</button>
+    </section>
+
+    <!-- Get By Sender + Hospital -->
+    <section class="card">
+        <h2>Get By Sender &amp; Hospital <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/notifications/sender/{senderIdKeccak}/hospital/{hospitalId}</p>
+        <div class="form-group">
+            <label>Sender Keccak</label>
+            <input type="text" id="gsh-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Hospital ID</label>
+            <input type="text" id="gsh-hospitalId" placeholder="Hospital ID" />
+        </div>
+        <button onclick="getBySenderAndHospital()">Get By Sender &amp; Hospital</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

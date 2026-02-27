@@ -27,5 +27,12 @@ public class GroupAccessController {
     public ResponseEntity<List<GroupAccess>> getByHospitalId(@PathVariable String hospitalId) {
         return ResponseEntity.ok(groupAccessService.getByHospitalId(hospitalId));
     }
-    // get by groupid docter id
+
+    @GetMapping("/key")
+    public ResponseEntity<String> getEncryptedGroupKey(
+            @RequestParam String groupId,
+            @RequestParam String doctorId) {
+        String encKey = groupAccessService.getEncryptedGroupKey(groupId, doctorId);
+        return ResponseEntity.ok(encKey);
+    }
 }

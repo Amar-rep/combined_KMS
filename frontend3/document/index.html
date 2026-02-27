@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Document Controller</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- elliptic for secp256k1 ECDH (Web Crypto API doesn't support secp256k1) -->
+    <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js"></script>
+</head>
+
+<body>
+    <h1>Document Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Decrypt Group Key Section -->
+    <section class="card key-section">
+        <h2>🔑 Doctor Private Key &amp; Group Key</h2>
+        <p>Enter your secp256k1 private key (hex) to decrypt the group key stored in GroupAccess table. The encrypted
+            key is fetched automatically.</p>
+        <div class="form-group">
+            <label>Doctor ID (for fetching encrypted group key)</label>
+            <input type="text" id="doctor-id-for-key" placeholder="Doctor ID or Keccak" />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="group-id-for-key" placeholder="Group ID" />
+        </div>
+        <div class="form-group">
+            <label>Private Key (secp256k1 hex, 64 chars — your Ethereum/EC private key)</label>
+            <input type="text" id="private-key-input"
+                placeholder="aabbcc...ddeeff (64 hex chars, no 0x prefix needed)" />
+        </div>
+        <button onclick="fetchAndDecryptGroupKey()">Fetch &amp; Decrypt Group Key</button>
+        <div class="form-group" style="margin-top:10px;">
+            <label>Decrypted Group Key (Base64) — auto-filled</label>
+            <input type="text" id="decrypted-group-key" placeholder="Will be auto-filled after decryption" readonly />
+        </div>
+    </section>
+
+    <!-- Upload / Create Document -->
+    <section class="card">
+        <h2>Create / Upload Document <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/documents</p>
+        <div class="form-group">
+            <label>Sender Keccak</label>
+            <input type="text" id="cu-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="cu-groupId" placeholder="group_id" />
+        </div>
+        <div class="form-group">
+            <label>Group Key Base64 (leave blank to use decrypted key above)</label>
+            <input type="text" id="cu-groupKey" placeholder="Auto-filled or enter manually" />
+        </div>
+        <div class="form-group">
+            <label>Nonce</label>
+            <input type="text" id="cu-nonce" placeholder="Nonce" />
+        </div>
+        <div class="form-group">
+            <label>Signature</label>
+            <input type="text" id="cu-signature" placeholder="Signature" />
+        </div>
+        <div class="form-group">
+            <label>Filename</label>
+            <input type="text" id="cu-filename" placeholder="report.pdf" />
+        </div>
+        <div class="form-group">
+            <label>Metadata (JSON)</label>
+            <textarea id="cu-metadata" rows="3" placeholder='{"type": "lab_report"}'></textarea>
+        </div>
+        <div class="form-group">
+            <label>File</label>
+            <input type="file" id="cu-file" />
+        </div>
+        <button onclick="createDocument()">Upload Document</button>
+    </section>
+
+    <!-- Download Document -->
+    <section class="card">
+        <h2>Download Document <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/documents/download</p>
+        <div class="form-group">
+            <label>Sender Keccak</label>
+            <input type="text" id="dl-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="dl-groupId" placeholder="group_id" />
+        </div>
+        <div class="form-group">
+            <label>Record ID</label>
+            <input type="text" id="dl-recordId" placeholder="Record ID" />
+        </div>
+        <div class="form-group">
+            <label>Group Key Base64 (leave blank to use decrypted key above)</label>
+            <input type="text" id="dl-groupKey" placeholder="Auto-filled or enter manually" />
+        </div>
+        <div class="form-group">
+            <label>Nonce</label>
+            <input type="text" id="dl-nonce" placeholder="Nonce" />
+        </div>
+        <div class="form-group">
+            <label>Signature</label>
+            <input type="text" id="dl-signature" placeholder="Signature" />
+        </div>
+        <button onclick="downloadDocument()">Download Document</button>
+    </section>
+
+    <!-- Give Access -->
+    <section class="card">
+        <h2>Give Access <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/documents/access</p>
+        <div class="form-group">
+            <label>Sender Keccak (Patient)</label>
+            <input type="text" id="ga-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Hospital ID</label>
+            <input type="text" id="ga-hospitalId" placeholder="Hospital ID" />
+        </div>
+        <div class="form-group">
+            <label>Receiver Keccak (Doctor)</label>
+            <input type="text" id="ga-receiver" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Notification ID</label>
+            <input type="number" id="ga-notificationId" placeholder="Notification ID" />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="ga-groupId" placeholder="Group ID" />
+        </div>
+        <div class="form-group">
+            <label>Nonce</label>
+            <input type="text" id="ga-nonce" placeholder="Nonce" />
+        </div>
+        <div class="form-group">
+            <label>Signature</label>
+            <input type="text" id="ga-signature" placeholder="Signature" />
+        </div>
+        <button onclick="giveAccess()">Give Access</button>
+    </section>
+
+    <!-- Revoke Access -->
+    <section class="card">
+        <h2>Revoke Access <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/documents/revoke-access</p>
+        <div class="form-group">
+            <label>Sender Keccak</label>
+            <input type="text" id="ra-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="ra-groupId" placeholder="Group ID" />
+        </div>
+        <div class="form-group">
+            <label>Nonce</label>
+            <input type="text" id="ra-nonce" placeholder="Nonce" />
+        </div>
+        <div class="form-group">
+            <label>Signature</label>
+            <input type="text" id="ra-signature" placeholder="Signature" />
+        </div>
+        <button onclick="revokeAccess()">Revoke Access</button>
+    </section>
+
+    <!-- Allow Access Inter-Hospital -->
+    <section class="card">
+        <h2>Allow Access Inter-Hospital <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/documents/allow-access-inter-hospital</p>
+        <div class="form-group">
+            <label>Document Request ID</label>
+            <input type="number" id="ih-requestId" placeholder="Document Request ID" />
+        </div>
+        <div class="form-group">
+            <label>Receiver ID Keccak</label>
+            <input type="text" id="ih-receiver" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Nonce</label>
+            <input type="text" id="ih-nonce" placeholder="Nonce" />
+        </div>
+        <div class="form-group">
+            <label>Signature</label>
+            <input type="text" id="ih-signature" placeholder="Signature" />
+        </div>
+        <button onclick="allowAccessInterHospital()">Allow Inter-Hospital Access</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

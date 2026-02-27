@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>KMS Hospital Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>KMS Hospital Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Register Hospital -->
+    <section class="card">
+        <h2>Register Hospital <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/kms/hospitals/register</p>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="rh-name" placeholder="Hospital Name" />
+        </div>
+        <div class="form-group">
+            <label>Location</label>
+            <input type="text" id="rh-location" placeholder="City, Country" />
+        </div>
+        <div class="form-group">
+            <label>Hospital Key (Base64)</label>
+            <input type="text" id="rh-key" placeholder="Base64 Hospital Key" />
+        </div>
+        <button onclick="registerHospital()">Register Hospital</button>
+    </section>
+
+    <!-- Get Hospital By ID -->
+    <section class="card">
+        <h2>Get Hospital By ID <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/kms/hospitals/{hospitalId}</p>
+        <div class="form-group">
+            <label>Hospital ID</label>
+            <input type="number" id="gh-id" placeholder="123" />
+        </div>
+        <button onclick="getHospitalById()">Get Hospital</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

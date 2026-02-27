@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Health Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Health Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Health Check -->
+    <section class="card">
+        <h2>Health Check <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /health</p>
+        <button onclick="healthCheck()">Check Health</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

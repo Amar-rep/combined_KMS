@@ -47,4 +47,8 @@ public class NotificationService {
     public List<KmsNotificationDTO> getNotificationsByHospitalId(String hospitalId) {
         return kmsClientService.getNotificationsByHospitalId(hospitalId);
     }
+
+    public List<KmsNotificationDTO> getNotificationsBySenderAndHospital(String senderIdKeccak, String hospitalId) {
+        return kmsClientService.getNotificationsBySenderAndHospital(senderIdKeccak, hospitalId);
+    }
 }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Document Request Controller</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Document Request Controller</h1>
+    <div id="response-box">
+        <pre id="response-output">Response will appear here...</pre>
+    </div>
+
+    <!-- Create Document Request -->
+    <section class="card">
+        <h2>Create Document Request <span class="badge post">POST</span></h2>
+        <p class="endpoint">POST /api/document-requests</p>
+        <div class="form-group">
+            <label>Sender ID Keccak</label>
+            <input type="text" id="cr-sender" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Receiver ID Keccak</label>
+            <input type="text" id="cr-receiver" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Sender Hospital ID</label>
+            <input type="text" id="cr-senderHospital" placeholder="Sender Hospital ID" />
+        </div>
+        <div class="form-group">
+            <label>Receiver Hospital ID</label>
+            <input type="text" id="cr-receiverHospital" placeholder="Receiver Hospital ID" />
+        </div>
+        <div class="form-group">
+            <label>Group ID</label>
+            <input type="text" id="cr-groupId" placeholder="Group ID" />
+        </div>
+        <button onclick="createDocumentRequest()">Create Request</button>
+    </section>
+
+    <!-- Get Requests By Receiver -->
+    <section class="card">
+        <h2>Get Requests By Receiver <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/document-requests/receiver/{receiverIdKeccak}</p>
+        <div class="form-group">
+            <label>Receiver ID Keccak</label>
+            <input type="text" id="gr-receiver" placeholder="0x..." />
+        </div>
+        <button onclick="getByReceiver()">Get By Receiver</button>
+    </section>
+
+    <!-- Get Requests By Receiver + Status -->
+    <section class="card">
+        <h2>Get Requests By Receiver &amp; Status <span class="badge get">GET</span></h2>
+        <p class="endpoint">GET /api/document-requests/receiver/{receiverIdKeccak}/status/{status}</p>
+        <div class="form-group">
+            <label>Receiver ID Keccak</label>
+            <input type="text" id="grs-receiver" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <input type="text" id="grs-status" placeholder="e.g. PENDING, APPROVED" />
+        </div>
+        <button onclick="getByReceiverAndStatus()">Get By Receiver &amp; Status</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
