@@ -44,7 +44,7 @@ public class FileService {
     private final GroupKeyRepository groupKeyRepository;
     private final RecordRepository recordRepository;
     private final GroupAccessService groupAccessService;
-    private final HospitalService hospitalService;
+
     private final NotificationService notificationService;
     private final HospitalRepository hospitalRepository;
     private final com.example.kms.repository.GroupAccessRepository groupAccessRepository;
@@ -168,11 +168,11 @@ public class FileService {
                     allowAccessDTO.getSender_keccak(), allowAccessDTO.getReceiver_keccak(),
                     allowAccessDTO.getGroupId());
 
+            // 1. Verify sender exists
             AppUser sender = userService.findByKeccak(allowAccessDTO.getSender_keccak());
             log.debug("Found sender user: {}", sender.getUserIdKeccak());
 
-            notificationService.updateStatus(allowAccessDTO.getNotificationId(), "accept");
-
+            // 2. Verify signature before any state changes
             boolean isSignatureValid = keyService.verifySignature(
                     allowAccessDTO.getNonce(),
                     allowAccessDTO.getSignature(),
@@ -183,6 +183,7 @@ public class FileService {
             }
             log.debug("Signature verified successfully");
 
+            // 3. Load group and hospital
             GroupKey groupKey = groupKeyRepository.findById(allowAccessDTO.getGroupId())
                     .orElseThrow(() -> new RuntimeException(
                             "Group not found with ID: " + allowAccessDTO.getGroupId()));
@@ -192,15 +193,20 @@ public class FileService {
                     .orElseThrow(() -> new RuntimeException(
                             "Hospital not found with ID: " + allowAccessDTO.getHospital_id()));
 
+            // 4. Verify sender is the group owner
             if (!groupKey.getUser().getId().equals(sender.getId())) {
                 throw new RuntimeException("User " + allowAccessDTO.getSender_keccak() +
                         " is not the owner of group " + allowAccessDTO.getGroupId());
             }
             log.debug("Verified sender is the group owner");
 
+            // 5. All validations passed — now update notification status
+            notificationService.updateStatus(allowAccessDTO.getNotificationId(), "accept");
+
+            // 6. Load receiver and encrypt group key with their public key
             AppUser receiver = userService.findByKeccak(allowAccessDTO.getReceiver_keccak());
             log.debug("Found receiver user: {}", receiver.getUserIdKeccak());
-            hospitalService.findById(allowAccessDTO.getHospital_id());
+
             String groupKeyBase64 = groupKey.getGroupKeyBase64();
             SecretKey groupSecretKey = keyService.base64ToSecretKey(groupKeyBase64, "AES");
             log.debug("Retrieved group key");
@@ -210,11 +216,15 @@ public class FileService {
 
             String encryptedGroupKey = keyService.encryptKeyWithPublicKey(groupSecretKey, receiverPublicKey);
             log.info("Successfully encrypted group key for receiver: {}", receiver.getUserIdKeccak());
+
             groupAccessService.createGroupAccess(groupKey, receiver, hospital, encryptedGroupKey);
+
+            // Return null for groupKeyBase64 — raw key must never be exposed in the
+            // response
             return new AllowAccessResponseDTO(
                     groupKey.getGroupId(),
                     encryptedGroupKey,
-                    groupKeyBase64,
+                    null,
                     receiver.getUserIdKeccak());
 
         } catch (Exception e) {

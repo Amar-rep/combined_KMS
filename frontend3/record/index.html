@@ -2,28 +2,19 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Record Controller</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Record</title>
 </head>
 
 <body>
-    <h1>Record Controller</h1>
-    <div id="response-box">
-        <pre id="response-output">Response will appear here...</pre>
-    </div>
+    <h2>Record Controller</h2>
 
-    <!-- Get Records By Group -->
-    <section class="card">
-        <h2>Get Records By Group <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/records/group/{groupId}</p>
-        <div class="form-group">
-            <label>Group ID</label>
-            <input type="text" id="rg-groupId" placeholder="Group ID" />
-        </div>
-        <button onclick="getRecordsByGroup()">Get Records By Group</button>
-    </section>
+    <h3>GET /api/hospital/records/group/{groupId} — Get Records by Group</h3>
+    <input id="rg-groupId" placeholder="groupId (String)">
+    <button onclick="getRecordsByGroup()">Get</button>
 
+    <h3>Response</h3>
+    <pre id="response-output"></pre>
     <script src="script.js"></script>
 </body>
 

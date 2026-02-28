@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8083';
 
 function show(data) {
     document.getElementById('response-output').textContent =
@@ -8,7 +8,7 @@ function show(data) {
 async function req(method, url, body) {
     try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) opts.body = JSON.stringify(body);
+        if (body !== undefined) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const text = await res.text();
         try { show(JSON.parse(text)); } catch { show(text); }
@@ -16,40 +16,42 @@ async function req(method, url, body) {
 }
 
 function registerUser() {
+    const isActiveRaw = document.getElementById('ru-isActive').value.trim();
+    const metaRaw = document.getElementById('ru-meta').value.trim();
     req('POST', `${BASE}/api/blockchain/register-user`, {
-        userId: document.getElementById('ru-userId').value.trim(),
-        role: document.getElementById('ru-role').value.trim(),
-        isActive: document.getElementById('ru-isActive').value === 'true',
-        meta: document.getElementById('ru-meta').value.trim() || '{}'
+        userId: document.getElementById('ru-userId').value,
+        role: document.getElementById('ru-role').value,
+        isActive: isActiveRaw === 'true',
+        meta: metaRaw || '{}'
     });
 }
 
 function addRecord() {
     req('POST', `${BASE}/api/blockchain/record`, {
-        recordId: document.getElementById('ar-recordId').value.trim(),
-        patientId: document.getElementById('ar-patientId').value.trim(),
-        documentHash: document.getElementById('ar-docHash').value.trim(),
-        ipfsCid: document.getElementById('ar-ipfsCid').value.trim()
+        recordId: document.getElementById('ar-recordId').value,
+        patientId: document.getElementById('ar-patientId').value,
+        documentHash: document.getElementById('ar-documentHash').value,
+        ipfsCid: document.getElementById('ar-ipfsCid').value
     });
 }
 
 function grantAccess() {
     req('POST', `${BASE}/api/blockchain/access/grant`, {
-        recordId: document.getElementById('grant-recordId').value.trim(),
-        doctorId: document.getElementById('grant-doctorId').value.trim()
+        recordId: document.getElementById('ga-recordId').value,
+        doctorId: document.getElementById('ga-doctorId').value
     });
 }
 
 function revokeAccess() {
     req('POST', `${BASE}/api/blockchain/access/revoke`, {
-        recordId: document.getElementById('revoke-recordId').value.trim(),
-        doctorId: document.getElementById('revoke-doctorId').value.trim()
+        recordId: document.getElementById('ra-recordId').value,
+        doctorId: document.getElementById('ra-doctorId').value
     });
 }
 
 function checkAccess() {
-    const recordId = document.getElementById('check-recordId').value.trim();
-    const viewerId = document.getElementById('check-viewerId').value.trim();
+    const recordId = document.getElementById('ca-recordId').value;
+    const viewerId = document.getElementById('ca-viewerId').value;
     req('GET', `${BASE}/api/blockchain/access/check?recordId=${encodeURIComponent(recordId)}&viewerId=${encodeURIComponent(viewerId)}`);
 }
 

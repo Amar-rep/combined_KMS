@@ -1,96 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Appointment Controller</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
+<head><meta charset="UTF-8"><title>Appointment</title></head>
 <body>
-  <h1>Appointment Controller</h1>
-  <div id="response-box"><pre id="response-output">Response will appear here...</pre></div>
+<h2>Appointment Controller</h2>
 
-  <!-- Create Appointment -->
-  <section class="card">
-    <h2>Create Appointment <span class="badge post">POST</span></h2>
-    <p class="endpoint">POST /api/hospital/appointments</p>
-    <div class="form-group">
-      <label>Patient ID</label>
-      <input type="number" id="ca-patientId" placeholder="Patient ID" />
-    </div>
-    <div class="form-group">
-      <label>Doctor ID</label>
-      <input type="number" id="ca-doctorId" placeholder="Doctor ID" />
-    </div>
-    <div class="form-group">
-      <label>Date (YYYY-MM-DD)</label>
-      <input type="text" id="ca-date" placeholder="2025-01-01" />
-    </div>
-    <div class="form-group">
-      <label>Reason</label>
-      <input type="text" id="ca-reason" placeholder="Reason for appointment" />
-    </div>
-    <button onclick="createAppointment()">Create Appointment</button>
-  </section>
+<h3>POST /api/hospital/appointments — Create Appointment</h3>
+<input id="ca-patientId" placeholder="patientId (Long)">
+<input id="ca-doctorId" placeholder="doctorId (Long)">
+<input id="ca-appointmentDate" placeholder="appointmentDate (ISO, e.g. 2024-01-01T10:00:00+00:00)">
+<input id="ca-notes" placeholder="notes">
+<button onclick="createAppointment()">Create</button>
 
-  <!-- Get Appointment By ID -->
-  <section class="card">
-    <h2>Get Appointment By ID <span class="badge get">GET</span></h2>
-    <p class="endpoint">GET /api/hospital/appointments/{id}</p>
-    <div class="form-group">
-      <label>Appointment ID</label>
-      <input type="number" id="ga-id" placeholder="Appointment ID" />
-    </div>
-    <button onclick="getAppointmentById()">Get Appointment</button>
-  </section>
+<h3>GET /api/hospital/appointments/{id} — Get by ID</h3>
+<input id="ga-id" placeholder="id (Long)">
+<button onclick="getById()">Get</button>
 
-  <!-- Get By Patient -->
-  <section class="card">
-    <h2>Get Appointments By Patient <span class="badge get">GET</span></h2>
-    <p class="endpoint">GET /api/hospital/appointments/patient/{patientId}</p>
-    <div class="form-group">
-      <label>Patient ID</label>
-      <input type="number" id="gp-patientId" placeholder="Patient ID" />
-    </div>
-    <button onclick="getByPatient()">Get By Patient</button>
-  </section>
+<h3>GET /api/hospital/appointments/patient/{patientId} — Get by Patient</h3>
+<input id="gp-patientId" placeholder="patientId (Long)">
+<button onclick="getByPatient()">Get</button>
 
-  <!-- Get By Doctor -->
-  <section class="card">
-    <h2>Get Appointments By Doctor <span class="badge get">GET</span></h2>
-    <p class="endpoint">GET /api/hospital/appointments/doctor/{doctorId}</p>
-    <div class="form-group">
-      <label>Doctor ID</label>
-      <input type="number" id="gd-doctorId" placeholder="Doctor ID" />
-    </div>
-    <button onclick="getByDoctor()">Get By Doctor</button>
-  </section>
+<h3>GET /api/hospital/appointments/doctor/{doctorId} — Get by Doctor</h3>
+<input id="gd-doctorId" placeholder="doctorId (Long)">
+<button onclick="getByDoctor()">Get</button>
 
-  <!-- Get By Status -->
-  <section class="card">
-    <h2>Get Appointments By Status <span class="badge get">GET</span></h2>
-    <p class="endpoint">GET /api/hospital/appointments/status/{status}</p>
-    <div class="form-group">
-      <label>Status</label>
-      <input type="text" id="gs-status" placeholder="e.g. PENDING, CONFIRMED" />
-    </div>
-    <button onclick="getByStatus()">Get By Status</button>
-  </section>
+<h3>GET /api/hospital/appointments/status/{status} — Get by Status</h3>
+<input id="gs-status" placeholder="status (e.g. SCHEDULED)">
+<button onclick="getByStatus()">Get</button>
 
-  <!-- Update Appointment Status -->
-  <section class="card">
-    <h2>Update Appointment Status <span class="badge put">PUT</span></h2>
-    <p class="endpoint">PUT /api/hospital/appointments/{id}/status</p>
-    <div class="form-group">
-      <label>Appointment ID</label>
-      <input type="number" id="us-id" placeholder="Appointment ID" />
-    </div>
-    <div class="form-group">
-      <label>New Status</label>
-      <input type="text" id="us-status" placeholder="e.g. CONFIRMED" />
-    </div>
-    <button onclick="updateStatus()">Update Status</button>
-  </section>
+<h3>PUT /api/hospital/appointments/{id}/status — Update Status</h3>
+<input id="us-id" placeholder="id (Long)">
+<input id="us-status" placeholder="status">
+<button onclick="updateStatus()">Update</button>
 
-  <script src="script.js"></script>
+<h3>Response</h3>
+<pre id="response-output"></pre>
+<script src="script.js"></script>
 </body>
 </html>

@@ -2,54 +2,35 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Group Access Controller</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Group Access</title>
+    <!-- eccrypto-js for ECC decryption -->
+    <script src="https://cdn.jsdelivr.net/npm/eccrypto-js@5.2.2/dist/eccrypto.umd.min.js"></script>
 </head>
 
 <body>
-    <h1>Group Access Controller</h1>
-    <div id="response-box">
-        <pre id="response-output">Response will appear here...</pre>
-    </div>
+    <h2>Group Access Controller</h2>
 
-    <!-- Sync From KMS -->
-    <section class="card">
-        <h2>Sync Group Access From KMS <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/group-access/sync</p>
-        <div class="form-group">
-            <label>Hospital ID</label>
-            <input type="text" id="sync-hospitalId" placeholder="Hospital ID" />
-        </div>
-        <button onclick="syncFromKms()">Sync From KMS</button>
-    </section>
+    <h3>POST /api/group-access/sync — Sync from KMS</h3>
+    <input id="sy-hospitalId" placeholder="hospitalId">
+    <button onclick="syncFromKms()">Sync</button>
 
-    <!-- Get By Hospital ID -->
-    <section class="card">
-        <h2>Get By Hospital ID <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/group-access/hospital/{hospitalId}</p>
-        <div class="form-group">
-            <label>Hospital ID</label>
-            <input type="text" id="gh-hospitalId" placeholder="Hospital ID" />
-        </div>
-        <button onclick="getByHospitalId()">Get By Hospital</button>
-    </section>
+    <h3>GET /api/group-access/hospital/{hospitalId} — Get by Hospital ID</h3>
+    <input id="gh-hospitalId" placeholder="hospitalId">
+    <button onclick="getByHospitalId()">Get</button>
 
-    <!-- Get Encrypted Group Key -->
-    <section class="card">
-        <h2>Get Encrypted Group Key <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/group-access/key?groupId=&amp;doctorId=</p>
-        <div class="form-group">
-            <label>Group ID</label>
-            <input type="text" id="gk-groupId" placeholder="Group ID" />
-        </div>
-        <div class="form-group">
-            <label>Doctor ID</label>
-            <input type="text" id="gk-doctorId" placeholder="Doctor ID (Keccak)" />
-        </div>
-        <button onclick="getEncryptedGroupKey()">Get Encrypted Key</button>
-    </section>
+    <h3>GET /api/group-access/key?groupId=&amp;doctorId= — Get Encrypted Group Key</h3>
+    <input id="gk-groupId" placeholder="groupId">
+    <input id="gk-doctorId" placeholder="doctorId">
+    <textarea id="gk-privateKey" placeholder="Doctor's Private Key (Hex format without 0x)" rows="4"
+        cols="50"></textarea>
+    <button onclick="getEncryptedGroupKey()">Get Key & Decrypt</button>
 
+    <h3>Decrypted Group Key</h3>
+    <pre id="decrypted-key-output"></pre>
+
+    <h3>Response</h3>
+    <pre id="response-output"></pre>
     <script src="script.js"></script>
 </body>
 

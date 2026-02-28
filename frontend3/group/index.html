@@ -2,72 +2,35 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Group Controller</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Group</title>
 </head>
 
 <body>
-    <h1>Group Controller</h1>
-    <div id="response-box">
-        <pre id="response-output">Response will appear here...</pre>
-    </div>
+    <h2>Group Controller</h2>
 
-    <!-- Create Group -->
-    <section class="card">
-        <h2>Create Group <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/hospital/groups</p>
-        <div class="form-group">
-            <label>Group ID</label>
-            <input type="text" id="cg-groupId" placeholder="Group ID (string)" />
-        </div>
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="cg-name" placeholder="Group Name" />
-        </div>
-        <button onclick="createGroup()">Create Group</button>
-    </section>
+    <h3>POST /api/hospital/groups — Create Group</h3>
+    <input id="cg-name" placeholder="name">
+    <input id="cg-userIdKeccak" placeholder="userIdKeccak">
+    <button onclick="createGroup()">Create</button>
 
-    <!-- Get Group By Database ID -->
-    <section class="card">
-        <h2>Get Group By DB ID <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/groups/{id}</p>
-        <div class="form-group">
-            <label>DB ID</label>
-            <input type="number" id="gg-id" placeholder="Integer ID" />
-        </div>
-        <button onclick="getGroupById()">Get Group</button>
-    </section>
+    <h3>GET /api/hospital/groups/{id} — Get by DB ID</h3>
+    <input id="gi-id" placeholder="id (Integer)">
+    <button onclick="getById()">Get</button>
 
-    <!-- Get By Group ID string -->
-    <section class="card">
-        <h2>Get Group By Group ID (String) <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/groups/group-id/{groupId}</p>
-        <div class="form-group">
-            <label>Group ID</label>
-            <input type="text" id="ggi-groupId" placeholder="Group ID string" />
-        </div>
-        <button onclick="getGroupByGroupId()">Get By Group ID</button>
-    </section>
+    <h3>GET /api/hospital/groups/group-id/{groupId} — Get by Group ID (string)</h3>
+    <input id="gg-groupId" placeholder="groupId (String)">
+    <button onclick="getByGroupId()">Get</button>
 
-    <!-- Get Groups By User -->
-    <section class="card">
-        <h2>Get Groups By User <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/groups/user/{userIdKeccak}</p>
-        <div class="form-group">
-            <label>User Keccak ID</label>
-            <input type="text" id="gu-keccak" placeholder="0x..." />
-        </div>
-        <button onclick="getGroupsByUser()">Get By User</button>
-    </section>
+    <h3>GET /api/hospital/groups/user/{userIdKeccak} — Get by User</h3>
+    <input id="gu-userIdKeccak" placeholder="userIdKeccak">
+    <button onclick="getByUser()">Get</button>
 
-    <!-- Get All Groups -->
-    <section class="card">
-        <h2>Get All Groups <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/groups</p>
-        <button onclick="getAllGroups()">Get All Groups</button>
-    </section>
+    <h3>GET /api/hospital/groups — Get All</h3>
+    <button onclick="getAll()">Get All</button>
 
+    <h3>Response</h3>
+    <pre id="response-output"></pre>
     <script src="script.js"></script>
 </body>
 

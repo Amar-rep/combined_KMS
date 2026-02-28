@@ -2,24 +2,18 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Health Controller</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Health</title>
 </head>
 
 <body>
-    <h1>Health Controller</h1>
-    <div id="response-box">
-        <pre id="response-output">Response will appear here...</pre>
-    </div>
+    <h2>Health Controller</h2>
 
-    <!-- Health Check -->
-    <section class="card">
-        <h2>Health Check <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /health</p>
-        <button onclick="healthCheck()">Check Health</button>
-    </section>
+    <h3>GET /health — Health Check</h3>
+    <button onclick="checkHealth()">Check Health</button>
 
+    <h3>Response</h3>
+    <pre id="response-output"></pre>
     <script src="script.js"></script>
 </body>
 

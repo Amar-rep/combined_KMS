@@ -2,69 +2,36 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Patient Controller</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Patient</title>
 </head>
 
 <body>
-    <h1>Patient Controller</h1>
-    <div id="response-box">
-        <pre id="response-output">Response will appear here...</pre>
-    </div>
+    <h2>Patient Controller</h2>
 
-    <!-- Register Patient -->
-    <section class="card">
-        <h2>Register Patient <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/hospital/patients/register</p>
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="rp-name" placeholder="Full Name" />
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="rp-email" placeholder="patient@email.com" />
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="rp-password" placeholder="Password" />
-        </div>
-        <div class="form-group">
-            <label>Date of Birth (YYYY-MM-DD)</label>
-            <input type="text" id="rp-dob" placeholder="1990-01-01" />
-        </div>
-        <button onclick="registerPatient()">Register Patient</button>
-    </section>
+    <h3>POST /api/hospital/patients/register — Register Patient</h3>
+    <input id="rp-patientIdKeccak" placeholder="patientIdKeccak">
+    <input id="rp-name" placeholder="name">
+    <input id="rp-email" placeholder="email">
+    <input id="rp-phone" placeholder="phone">
+    <input id="rp-dateOfBirth" placeholder="dateOfBirth (YYYY-MM-DD)">
+    <input id="rp-address" placeholder="address">
+    <input id="rp-password" placeholder="password" type="password">
+    <button onclick="registerPatient()">Register</button>
 
-    <!-- Get Patient By ID -->
-    <section class="card">
-        <h2>Get Patient By ID <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/patients/{id}</p>
-        <div class="form-group">
-            <label>Patient ID</label>
-            <input type="number" id="gp-id" placeholder="Patient ID" />
-        </div>
-        <button onclick="getPatientById()">Get Patient</button>
-    </section>
+    <h3>GET /api/hospital/patients/{id} — Get by ID</h3>
+    <input id="gp-id" placeholder="id (Long)">
+    <button onclick="getById()">Get</button>
 
-    <!-- Get Patient By Keccak -->
-    <section class="card">
-        <h2>Get Patient By Keccak ID <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/patients/keccak/{patientIdKeccak}</p>
-        <div class="form-group">
-            <label>Keccak ID</label>
-            <input type="text" id="gk-keccak" placeholder="0x..." />
-        </div>
-        <button onclick="getPatientByKeccak()">Get By Keccak</button>
-    </section>
+    <h3>GET /api/hospital/patients/keccak/{patientIdKeccak} — Get by Keccak</h3>
+    <input id="gk-keccak" placeholder="patientIdKeccak">
+    <button onclick="getByKeccak()">Get</button>
 
-    <!-- Get All Patients -->
-    <section class="card">
-        <h2>Get All Patients <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/hospital/patients</p>
-        <button onclick="getAllPatients()">Get All Patients</button>
-    </section>
+    <h3>GET /api/hospital/patients — Get All</h3>
+    <button onclick="getAll()">Get All</button>
 
+    <h3>Response</h3>
+    <pre id="response-output"></pre>
     <script src="script.js"></script>
 </body>
 

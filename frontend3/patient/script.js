@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8083';
 
 function show(data) {
     document.getElementById('response-output').textContent =
@@ -8,7 +8,7 @@ function show(data) {
 async function req(method, url, body) {
     try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) opts.body = JSON.stringify(body);
+        if (body !== undefined) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const text = await res.text();
         try { show(JSON.parse(text)); } catch { show(text); }
@@ -17,23 +17,26 @@ async function req(method, url, body) {
 
 function registerPatient() {
     req('POST', `${BASE}/api/hospital/patients/register`, {
+        patientIdKeccak: document.getElementById('rp-patientIdKeccak').value,
         name: document.getElementById('rp-name').value,
         email: document.getElementById('rp-email').value,
-        password: document.getElementById('rp-password').value,
-        dateOfBirth: document.getElementById('rp-dob').value
+        phone: document.getElementById('rp-phone').value,
+        dateOfBirth: document.getElementById('rp-dateOfBirth').value,
+        address: document.getElementById('rp-address').value,
+        password: document.getElementById('rp-password').value
     });
 }
 
-function getPatientById() {
+function getById() {
     const id = document.getElementById('gp-id').value;
     req('GET', `${BASE}/api/hospital/patients/${id}`);
 }
 
-function getPatientByKeccak() {
+function getByKeccak() {
     const keccak = document.getElementById('gk-keccak').value;
-    req('GET', `${BASE}/api/hospital/patients/keccak/${encodeURIComponent(keccak)}`);
+    req('GET', `${BASE}/api/hospital/patients/keccak/${keccak}`);
 }
 
-function getAllPatients() {
+function getAll() {
     req('GET', `${BASE}/api/hospital/patients`);
 }

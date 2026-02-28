@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8083';
 
 function show(data) {
     document.getElementById('response-output').textContent =
@@ -8,7 +8,7 @@ function show(data) {
 async function req(method, url, body) {
     try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) opts.body = JSON.stringify(body);
+        if (body !== undefined) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const text = await res.text();
         try { show(JSON.parse(text)); } catch { show(text); }
@@ -19,12 +19,12 @@ function createAppointment() {
     req('POST', `${BASE}/api/hospital/appointments`, {
         patientId: parseInt(document.getElementById('ca-patientId').value),
         doctorId: parseInt(document.getElementById('ca-doctorId').value),
-        date: document.getElementById('ca-date').value,
-        reason: document.getElementById('ca-reason').value
+        appointmentDate: document.getElementById('ca-appointmentDate').value,
+        notes: document.getElementById('ca-notes').value
     });
 }
 
-function getAppointmentById() {
+function getById() {
     const id = document.getElementById('ga-id').value;
     req('GET', `${BASE}/api/hospital/appointments/${id}`);
 }

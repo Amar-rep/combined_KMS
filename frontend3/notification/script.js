@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8083';
 
 function show(data) {
     document.getElementById('response-output').textContent =
@@ -8,7 +8,7 @@ function show(data) {
 async function req(method, url, body) {
     try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) opts.body = JSON.stringify(body);
+        if (body !== undefined) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const text = await res.text();
         try { show(JSON.parse(text)); } catch { show(text); }
@@ -17,41 +17,41 @@ async function req(method, url, body) {
 
 function createNotification() {
     req('POST', `${BASE}/api/notifications`, {
-        senderIdKeccak: document.getElementById('cn-sender').value.trim(),
-        receiverIdKeccak: document.getElementById('cn-receiver').value.trim(),
-        hospitalId: document.getElementById('cn-hospitalId').value.trim(),
-        groupId: document.getElementById('cn-groupId').value.trim()
+        senderIdKeccak: document.getElementById('cn-senderIdKeccak').value,
+        receiverIdKeccak: document.getElementById('cn-receiverIdKeccak').value,
+        hospitalId: document.getElementById('cn-hospitalId').value,
+        groupId: document.getElementById('cn-groupId').value
     });
 }
 
-function getNotificationById() {
+function getById() {
     const id = document.getElementById('gn-id').value;
     req('GET', `${BASE}/api/notifications/${id}`);
 }
 
 function getByReceiver() {
-    const r = document.getElementById('gr-receiver').value.trim();
-    req('GET', `${BASE}/api/notifications/receiver/${encodeURIComponent(r)}`);
+    const keccak = document.getElementById('gr-receiverIdKeccak').value;
+    req('GET', `${BASE}/api/notifications/receiver/${keccak}`);
 }
 
-function getActiveNotifications() {
-    const r = document.getElementById('ga-receiver').value.trim();
-    req('GET', `${BASE}/api/notifications/receiver/${encodeURIComponent(r)}/active`);
+function getActiveByReceiver() {
+    const keccak = document.getElementById('ga-receiverIdKeccak').value;
+    req('GET', `${BASE}/api/notifications/receiver/${keccak}/active`);
 }
 
 function getByReceiverAndHospital() {
-    const r = document.getElementById('grh-receiver').value.trim();
-    const h = document.getElementById('grh-hospitalId').value.trim();
-    req('GET', `${BASE}/api/notifications/receiver/${encodeURIComponent(r)}/hospital/${encodeURIComponent(h)}`);
+    const keccak = document.getElementById('grh-receiverIdKeccak').value;
+    const hospitalId = document.getElementById('grh-hospitalId').value;
+    req('GET', `${BASE}/api/notifications/receiver/${keccak}/hospital/${hospitalId}`);
 }
 
 function getByHospitalId() {
-    const h = document.getElementById('gh-hospitalId').value.trim();
-    req('GET', `${BASE}/api/notifications/hospital/${encodeURIComponent(h)}`);
+    const hospitalId = document.getElementById('gh-hospitalId').value;
+    req('GET', `${BASE}/api/notifications/hospital/${hospitalId}`);
 }
 
 function getBySenderAndHospital() {
-    const s = document.getElementById('gsh-sender').value.trim();
-    const h = document.getElementById('gsh-hospitalId').value.trim();
-    req('GET', `${BASE}/api/notifications/sender/${encodeURIComponent(s)}/hospital/${encodeURIComponent(h)}`);
+    const senderKeccak = document.getElementById('gsh-senderIdKeccak').value;
+    const hospitalId = document.getElementById('gsh-hospitalId').value;
+    req('GET', `${BASE}/api/notifications/sender/${senderKeccak}/hospital/${hospitalId}`);
 }

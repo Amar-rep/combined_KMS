@@ -2,118 +2,47 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Blockchain Controller</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Blockchain</title>
 </head>
 
 <body>
-    <h1>Blockchain Controller</h1>
-    <div id="response-box">
-        <pre id="response-output">Response will appear here...</pre>
-    </div>
+    <h2>Blockchain Controller</h2>
 
-    <!-- Register User -->
-    <section class="card">
-        <h2>Register User <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/blockchain/register-user</p>
-        <div class="form-group">
-            <label>User ID</label>
-            <input type="text" id="ru-userId" placeholder="User ID (Keccak)" />
-        </div>
-        <div class="form-group">
-            <label>Role</label>
-            <input type="text" id="ru-role" placeholder="e.g. DOCTOR, PATIENT" />
-        </div>
-        <div class="form-group">
-            <label>Is Active</label>
-            <select id="ru-isActive">
-                <option value="true">true</option>
-                <option value="false">false</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Meta (JSON string)</label>
-            <input type="text" id="ru-meta" placeholder='{}' />
-        </div>
-        <button onclick="registerUser()">Register User</button>
-    </section>
+    <h3>POST /api/blockchain/register-user — Register User</h3>
+    <input id="ru-userId" placeholder="userId (String)">
+    <input id="ru-role" placeholder="role (String)">
+    <input id="ru-isActive" placeholder="isActive (true/false)">
+    <input id="ru-meta" placeholder="meta (JSON string, optional)">
+    <button onclick="registerUser()">Register User</button>
 
-    <!-- Add Record -->
-    <section class="card">
-        <h2>Add Record <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/blockchain/record</p>
-        <div class="form-group">
-            <label>Record ID</label>
-            <input type="text" id="ar-recordId" placeholder="Record ID" />
-        </div>
-        <div class="form-group">
-            <label>Patient ID</label>
-            <input type="text" id="ar-patientId" placeholder="Patient ID (Keccak)" />
-        </div>
-        <div class="form-group">
-            <label>Document Hash</label>
-            <input type="text" id="ar-docHash" placeholder="0x..." />
-        </div>
-        <div class="form-group">
-            <label>IPFS CID</label>
-            <input type="text" id="ar-ipfsCid" placeholder="Qm..." />
-        </div>
-        <button onclick="addRecord()">Add Record</button>
-    </section>
+    <h3>POST /api/blockchain/record — Add Record</h3>
+    <input id="ar-recordId" placeholder="recordId (String)">
+    <input id="ar-patientId" placeholder="patientId (String)">
+    <input id="ar-documentHash" placeholder="documentHash (String)">
+    <input id="ar-ipfsCid" placeholder="ipfsCid (String)">
+    <button onclick="addRecord()">Add Record</button>
 
-    <!-- Grant Access -->
-    <section class="card">
-        <h2>Grant Access <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/blockchain/access/grant</p>
-        <div class="form-group">
-            <label>Record ID</label>
-            <input type="text" id="grant-recordId" placeholder="Record ID" />
-        </div>
-        <div class="form-group">
-            <label>Doctor ID</label>
-            <input type="text" id="grant-doctorId" placeholder="Doctor ID (Keccak)" />
-        </div>
-        <button onclick="grantAccess()">Grant Access</button>
-    </section>
+    <h3>POST /api/blockchain/access/grant — Grant Access</h3>
+    <input id="ga-recordId" placeholder="recordId (String)">
+    <input id="ga-doctorId" placeholder="doctorId (String)">
+    <button onclick="grantAccess()">Grant Access</button>
 
-    <!-- Revoke Access -->
-    <section class="card">
-        <h2>Revoke Access <span class="badge post">POST</span></h2>
-        <p class="endpoint">POST /api/blockchain/access/revoke</p>
-        <div class="form-group">
-            <label>Record ID</label>
-            <input type="text" id="revoke-recordId" placeholder="Record ID" />
-        </div>
-        <div class="form-group">
-            <label>Doctor ID</label>
-            <input type="text" id="revoke-doctorId" placeholder="Doctor ID (Keccak)" />
-        </div>
-        <button onclick="revokeAccess()">Revoke Access</button>
-    </section>
+    <h3>POST /api/blockchain/access/revoke — Revoke Access</h3>
+    <input id="ra-recordId" placeholder="recordId (String)">
+    <input id="ra-doctorId" placeholder="doctorId (String)">
+    <button onclick="revokeAccess()">Revoke Access</button>
 
-    <!-- Check Access -->
-    <section class="card">
-        <h2>Check Access <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/blockchain/access/check?recordId=&amp;viewerId=</p>
-        <div class="form-group">
-            <label>Record ID</label>
-            <input type="text" id="check-recordId" placeholder="Record ID" />
-        </div>
-        <div class="form-group">
-            <label>Viewer ID</label>
-            <input type="text" id="check-viewerId" placeholder="Viewer ID (Keccak)" />
-        </div>
-        <button onclick="checkAccess()">Check Access</button>
-    </section>
+    <h3>GET /api/blockchain/access/check?recordId=&amp;viewerId= — Check Access</h3>
+    <input id="ca-recordId" placeholder="recordId (String)">
+    <input id="ca-viewerId" placeholder="viewerId (String)">
+    <button onclick="checkAccess()">Check Access</button>
 
-    <!-- Get Merkle Root -->
-    <section class="card">
-        <h2>Get Merkle Root <span class="badge get">GET</span></h2>
-        <p class="endpoint">GET /api/blockchain/merkle-root</p>
-        <button onclick="getMerkleRoot()">Get Merkle Root</button>
-    </section>
+    <h3>GET /api/blockchain/merkle-root — Get Merkle Root</h3>
+    <button onclick="getMerkleRoot()">Get Merkle Root</button>
 
+    <h3>Response</h3>
+    <pre id="response-output"></pre>
     <script src="script.js"></script>
 </body>
 

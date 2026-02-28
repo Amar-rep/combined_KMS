@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8083';
 
 function show(data) {
     document.getElementById('response-output').textContent =
@@ -8,7 +8,7 @@ function show(data) {
 async function req(method, url, body) {
     try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) opts.body = JSON.stringify(body);
+        if (body !== undefined) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const text = await res.text();
         try { show(JSON.parse(text)); } catch { show(text); }
@@ -17,15 +17,16 @@ async function req(method, url, body) {
 
 function createDepartment() {
     req('POST', `${BASE}/api/hospital/departments`, {
-        name: document.getElementById('cd-name').value
+        name: document.getElementById('cd-name').value,
+        description: document.getElementById('cd-description').value
     });
 }
 
-function getDepartmentById() {
+function getById() {
     const id = document.getElementById('gd-id').value;
     req('GET', `${BASE}/api/hospital/departments/${id}`);
 }
 
-function getAllDepartments() {
+function getAll() {
     req('GET', `${BASE}/api/hospital/departments`);
 }

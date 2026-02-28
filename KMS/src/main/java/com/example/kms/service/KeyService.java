@@ -12,7 +12,7 @@ import org.web3j.utils.Numeric;
 import com.example.kms.entity.AppUser;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyAgreement;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -33,7 +33,6 @@ import java.security.Security;
 import java.util.Base64;
 import java.util.Arrays;
 import org.web3j.crypto.Hash;
-
 
 @Service
 public class KeyService {
@@ -64,7 +63,6 @@ public class KeyService {
         this.userService = userService;
     }
 
-
     public SecretKey generateDEK() {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(AES_ALGORITHM);
@@ -74,7 +72,6 @@ public class KeyService {
             throw new RuntimeException("Failed to generate DEK", e);
         }
     }
-
 
     public SecretKey generateGroupKey() {
         try {
@@ -86,10 +83,9 @@ public class KeyService {
         }
     }
 
-
     public String encryptKeyWithPublicKey(SecretKey keyToEncrypt, PublicKey publicKey) {
         try {
-            // 1. Generate ephemeral key pair
+            // 1. Generate ephemeral secp256k1 key pair
             ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(SECP256K1_CURVE);
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(EC_ALGORITHM, BOUNCY_CASTLE_PROVIDER);
             keyPairGenerator.initialize(ecSpec, secureRandom);
@@ -99,31 +95,48 @@ public class KeyService {
             ECPublicKey ephemeralPubKey = (ECPublicKey) ephemeralKeyPair.getPublic();
             byte[] ephemeralPubKeyBytes = ephemeralPubKey.getQ().getEncoded(false); // false = uncompressed
 
-            // 3. Perform ECDH to derive shared secret
-            KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH", BOUNCY_CASTLE_PROVIDER);
-            keyAgreement.init(ephemeralKeyPair.getPrivate());
-            keyAgreement.doPhase(publicKey, true);
-            byte[] sharedSecret = keyAgreement.generateSecret();
+            // 3. Derive ECDH shared secret using raw EC point multiplication.
+            // This matches eccrypto's: Px = keyA.derive(keyB.getPublic());
+            // Buffer.from(Px.toArray())
+            // eccrypto uses BN.toArray() which does NOT zero-pad — it strips leading zeros.
+            // JCE KeyAgreement.generateSecret() always zero-pads to 32 bytes, causing a
+            // mismatch.
+            // We use BouncyCastle ECPoint math directly to get the same variable-length
+            // X-coordinate.
+            org.bouncycastle.jce.interfaces.ECPrivateKey ephemPrivate = (org.bouncycastle.jce.interfaces.ECPrivateKey) ephemeralKeyPair
+                    .getPrivate();
+            ECPublicKey ecReceiverPubKey = (ECPublicKey) publicKey;
+            ECPoint sharedPoint = ecReceiverPubKey.getQ().multiply(ephemPrivate.getD()).normalize();
+            // Extract X-coordinate as BigInteger then to bytes — BigInteger.toByteArray()
+            // may prepend
+            // a 0x00 sign byte; strip it to match JS BN.toArray() behavior exactly.
+            byte[] sharedSecret = sharedPoint.getAffineXCoord().toBigInteger().toByteArray();
+            if (sharedSecret.length > 0 && sharedSecret[0] == 0x00) {
+                sharedSecret = Arrays.copyOfRange(sharedSecret, 1, sharedSecret.length);
+            }
 
-            // 4. Derive encryption key and MAC key from shared secret using SHA-512
-            // eccrypto uses SHA-512 hash of shared secret, split into two 32-byte keys
+            // 4. Derive encryption key (bytes 0-31) and MAC key (bytes 32-63) via
+            // SHA-512(Px)
+            // Matches eccrypto: var hash = sha512(Px); encKey = hash[0..31]; macKey =
+            // hash[32..63]
             MessageDigest sha512 = MessageDigest.getInstance("SHA-512");
             byte[] derivedKey = sha512.digest(sharedSecret);
-            byte[] encryptionKey = Arrays.copyOfRange(derivedKey, 0, 32); // First 32 bytes for AES-256
-            byte[] macKey = Arrays.copyOfRange(derivedKey, 32, 64); // Last 32 bytes for HMAC
+            byte[] encryptionKey = Arrays.copyOfRange(derivedKey, 0, 32);
+            byte[] macKey = Arrays.copyOfRange(derivedKey, 32, 64);
 
-            // 5. Generate random IV (16 bytes for AES-CBC)
+            // 5. Generate random 16-byte IV for AES-256-CBC
             byte[] iv = new byte[16];
             secureRandom.nextBytes(iv);
 
-            // 6. Encrypt with AES-256-CBC
+            // 6. Encrypt plaintext with AES-256-CBC + PKCS7 padding (PKCS5Padding in Java =
+            // PKCS7 for AES)
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             SecretKeySpec aesKey = new SecretKeySpec(encryptionKey, AES_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, aesKey, new IvParameterSpec(iv));
             byte[] ciphertext = cipher.doFinal(keyToEncrypt.getEncoded());
 
-            // 7. Calculate HMAC-SHA256 over (IV + ephemeralPubKey + ciphertext)
-            // This matches eccrypto library format
+            // 7. Compute HMAC-SHA256 over concat(iv, ephemPubKey, ciphertext)
+            // Matches eccrypto: dataToMac = Buffer.concat([iv, ephemPublicKey, ciphertext])
             Mac hmac = Mac.getInstance("HmacSHA256");
             hmac.init(new SecretKeySpec(macKey, "HmacSHA256"));
             hmac.update(iv);
@@ -131,7 +144,8 @@ public class KeyService {
             hmac.update(ciphertext);
             byte[] mac = hmac.doFinal();
 
-            // 8. Combine: [ephemeralPubKey(65)] + [iv(16)] + [ciphertext] + [mac(32)]
+            // 8. Wire format: [ephemPubKey(65)] + [iv(16)] + [ciphertext(var)] + [mac(32)]
+            // Matches decrypt_group_key.js slice offsets exactly.
             ByteBuffer buffer = ByteBuffer.allocate(
                     ephemeralPubKeyBytes.length + iv.length + ciphertext.length + mac.length);
             buffer.put(ephemeralPubKeyBytes);
@@ -144,7 +158,6 @@ public class KeyService {
             throw new RuntimeException("Failed to encrypt key with EC public key", e);
         }
     }
-
 
     public PublicKey convertToECPublicKey(byte[] publicKeyBytes) {
         try {
@@ -169,10 +182,8 @@ public class KeyService {
         }
     }
 
-
     public PublicKey convertToECPublicKey(BigInteger publicKeyBigInt) {
         byte[] publicKeyBytes = publicKeyBigInt.toByteArray();
-
 
         byte[] adjustedBytes = new byte[64];
         if (publicKeyBytes.length >= 64) {
@@ -183,7 +194,6 @@ public class KeyService {
 
         return convertToECPublicKey(adjustedBytes);
     }
-
 
     public String encryptDEKWithGroupKey(SecretKey dek, SecretKey groupKey) {
         try {
@@ -233,22 +243,18 @@ public class KeyService {
         }
     }
 
-
     public String generateGroupID() {
         return generateRandomString(GROUP_ID_LENGTH);
     }
-
 
     public String generateRecordID() {
         return generateRandomString(RECORD_ID_LENGTH);
     }
 
-
     public SecretKey base64ToSecretKey(String base64Key, String algorithm) {
         byte[] decodedKey = Base64.getDecoder().decode(base64Key);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithm);
     }
-
 
     public String secretKeyToBase64(SecretKey secretKey) {
         if (secretKey == null) {
@@ -270,7 +276,6 @@ public class KeyService {
         return sb.toString();
     }
 
-
     public boolean verifySignature(String nonce, String signatureBase64, String userIdKeccak) {
         try {
             AppUser user = userService.findByKeccak(userIdKeccak);
@@ -291,7 +296,6 @@ public class KeyService {
             if (v < 27) {
                 v = (byte) (v + 27);
             }
-
 
             byte[] messagePrefixHash = Sign.getEthereumMessageHash(nonce.getBytes(StandardCharsets.UTF_8));
 

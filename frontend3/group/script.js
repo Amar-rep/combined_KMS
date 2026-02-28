@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8083';
 
 function show(data) {
     document.getElementById('response-output').textContent =
@@ -8,7 +8,7 @@ function show(data) {
 async function req(method, url, body) {
     try {
         const opts = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) opts.body = JSON.stringify(body);
+        if (body !== undefined) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const text = await res.text();
         try { show(JSON.parse(text)); } catch { show(text); }
@@ -17,26 +17,26 @@ async function req(method, url, body) {
 
 function createGroup() {
     req('POST', `${BASE}/api/hospital/groups`, {
-        groupId: document.getElementById('cg-groupId').value.trim(),
-        name: document.getElementById('cg-name').value.trim()
+        name: document.getElementById('cg-name').value,
+        userIdKeccak: document.getElementById('cg-userIdKeccak').value
     });
 }
 
-function getGroupById() {
-    const id = document.getElementById('gg-id').value;
+function getById() {
+    const id = document.getElementById('gi-id').value;
     req('GET', `${BASE}/api/hospital/groups/${id}`);
 }
 
-function getGroupByGroupId() {
-    const groupId = document.getElementById('ggi-groupId').value.trim();
-    req('GET', `${BASE}/api/hospital/groups/group-id/${encodeURIComponent(groupId)}`);
+function getByGroupId() {
+    const groupId = document.getElementById('gg-groupId').value;
+    req('GET', `${BASE}/api/hospital/groups/group-id/${groupId}`);
 }
 
-function getGroupsByUser() {
-    const keccak = document.getElementById('gu-keccak').value.trim();
-    req('GET', `${BASE}/api/hospital/groups/user/${encodeURIComponent(keccak)}`);
+function getByUser() {
+    const keccak = document.getElementById('gu-userIdKeccak').value;
+    req('GET', `${BASE}/api/hospital/groups/user/${keccak}`);
 }
 
-function getAllGroups() {
+function getAll() {
     req('GET', `${BASE}/api/hospital/groups`);
 }

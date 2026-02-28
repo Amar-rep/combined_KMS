@@ -29,6 +29,6 @@ public class DoctorCredential {
     private String password;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", insertable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 }

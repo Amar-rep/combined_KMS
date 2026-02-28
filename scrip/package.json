@@ -1,0 +1,9 @@
+{
+  "name": "scrip",
+  "version": "1.0.0",
+  "description": "Node script to decrypt ECC-encrypted group key",
+  "main": "decrypt.js",
+  "dependencies": {
+    "eccrypto": "^1.1.6"
+  }
+}
