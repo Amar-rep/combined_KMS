@@ -66,6 +66,8 @@ public class GroupAccessService {
                         .doctor(doctor.get())
                         .hospitalId(dto.getHospitalId())
                         .encGroupKey(dto.getEncGroupKey())
+                        .grantedAt(dto.getGrantedAt())
+                        .revokedAt(dto.getRevokedAt())
                         .expiresAt(dto.getExpiresAt())
                         .status(dto.getStatus())
                         .lastModifiedBy(dto.getLastModifiedBy())
@@ -80,7 +82,6 @@ public class GroupAccessService {
 
     @Transactional
     public void syncGroupAccess(String groupId, String doctorKeccak, String hospitalId) {
-        // we can optmize later
         syncGroupAccessFromKms(hospitalId);
     }
 

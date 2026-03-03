@@ -1,0 +1,80 @@
+.patient-list-card {
+    height: 100%;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-list-card .card-header {
+    padding: 1.5rem 1.5rem 1rem;
+}
+
+.patient-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.patient-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid var(--border);
+}
+
+.patient-item:last-child {
+    border-bottom: none;
+}
+
+.patient-item:hover {
+    background-color: #f8fafc;
+}
+
+.patient-item.selected {
+    background-color: var(--primary-light);
+    border-left: 3px solid var(--primary);
+    padding-left: calc(1.5rem - 3px);
+}
+
+.patient-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+}
+
+.patient-item.selected .patient-avatar {
+    background-color: white;
+    color: var(--primary);
+}
+
+.patient-info-compact {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-name {
+    font-weight: 500;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.patient-email {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.chevron-icon {
+    color: #cbd5e1;
+}
+
+.patient-item.selected .chevron-icon {
+    color: var(--primary);
+}
