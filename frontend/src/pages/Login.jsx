@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, selectIsAuthenticated, selectAuthError, selectRole } from '../features/auth/authSlice';
-import { User, Activity, ArrowRight, Lock } from 'lucide-react';
+import { loginUser, selectIsAuthenticated, selectAuthError, selectRole, selectLoading } from '../features/auth/authSlice';
+import { Mail, Activity, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import './Login.css';
 
 const Login = () => {
     const [activeTab, setActiveTab] = useState('patient'); // 'patient' | 'doctor'
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const dispatch = useDispatch();
@@ -15,6 +15,7 @@ const Login = () => {
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const role = useSelector(selectRole);
     const error = useSelector(selectAuthError);
+    const loading = useSelector(selectLoading);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -28,7 +29,7 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        dispatch(login({ username, password, role: activeTab }));
+        dispatch(loginUser({ email, password, role: activeTab }));
     };
 
     return (
@@ -59,15 +60,15 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="input-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="email">Email</label>
                         <div className="input-wrapper">
-                            <User className="input-icon" size={18} />
+                            <Mail className="input-icon" size={18} />
                             <input
-                                type="text"
-                                id="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder={activeTab === 'patient' ? 'patient1' : 'doctor1'}
+                                type="email"
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="you@example.com"
                                 required
                             />
                         </div>
@@ -90,9 +91,18 @@ const Login = () => {
 
                     {error && <div className="error-message">{error}</div>}
 
-                    <button type="submit" className="submit-btn">
-                        <span>Login as {activeTab === 'patient' ? 'Patient' : 'Doctor'}</span>
-                        <ArrowRight size={18} />
+                    <button type="submit" className="submit-btn" disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Loader2 className="spin-icon" size={18} />
+                                <span>Logging in...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Login as {activeTab === 'patient' ? 'Patient' : 'Doctor'}</span>
+                                <ArrowRight size={18} />
+                            </>
+                        )}
                     </button>
                 </form>
 
