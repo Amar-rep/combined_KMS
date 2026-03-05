@@ -1,0 +1,115 @@
+/* ── Overlay ──────────────────────────────────── */
+.response-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: overlay-in 0.2s ease;
+    padding: 1.5rem;
+}
+
+@keyframes overlay-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ── Modal ────────────────────────────────────── */
+.response-modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: modal-in 0.25s ease;
+}
+
+@keyframes modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ── Header ───────────────────────────────────── */
+.response-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.response-modal-header.success {
+    background: var(--success-light, #ecfdf5);
+    color: var(--success);
+}
+
+.response-modal-header.error {
+    background: var(--danger-light, #fef2f2);
+    color: var(--danger);
+}
+
+.response-modal-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.response-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}
+
+.response-close-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-main);
+}
+
+/* ── Body ─────────────────────────────────────── */
+.response-modal-body {
+    background: #0f172a;
+    color: #7effa0;
+    padding: 1.25rem;
+    overflow: auto;
+    flex: 1;
+    max-height: 60vh;
+}
+
+.response-modal-header.error+.response-modal-body {
+    color: #fca5a5;
+}
+
+.response-output {
+    font-size: 0.82rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    line-height: 1.6;
+    margin: 0;
+}
