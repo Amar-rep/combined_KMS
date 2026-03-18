@@ -1,10 +1,12 @@
 package org.example.backend_hospital.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend_hospital.entity.AuthorityCredential;
 import org.example.backend_hospital.entity.Doctor;
 import org.example.backend_hospital.entity.DoctorCredential;
 import org.example.backend_hospital.entity.Patient;
 import org.example.backend_hospital.entity.PatientCredential;
+import org.example.backend_hospital.repository.AuthorityCredentialRepository;
 import org.example.backend_hospital.repository.DoctorCredentialRepository;
 import org.example.backend_hospital.repository.PatientCredentialRepository;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ public class AuthenticationService {
 
     private final DoctorCredentialRepository doctorCredentialRepository;
     private final PatientCredentialRepository patientCredentialRepository;
+    private final AuthorityCredentialRepository authorityCredentialRepository;
 
     // ── Doctor ────────────────────────────────────────────────────────────────
 
@@ -45,6 +48,13 @@ public class AuthenticationService {
 
     public Optional<PatientCredential> loginPatient(String email, String password) {
         return patientCredentialRepository.findByEmail(email)
+                .filter(cred -> cred.getPassword().equals(password));
+    }
+
+    // ── Authority ─────────────────────────────────────────────────────────────
+
+    public Optional<AuthorityCredential> loginAuthority(String username, String password) {
+        return authorityCredentialRepository.findByUsername(username)
                 .filter(cred -> cred.getPassword().equals(password));
     }
 }

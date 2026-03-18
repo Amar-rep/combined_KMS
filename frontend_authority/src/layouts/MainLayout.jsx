@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import { Users, Stethoscope, Building2, Activity } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Users, Stethoscope, Building2, Activity, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './MainLayout.css';
 
 const navItems = [
@@ -9,6 +10,14 @@ const navItems = [
 ];
 
 const MainLayout = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login', { replace: true });
+    };
+
     return (
         <div className="layout-container">
             <aside className="sidebar">
@@ -33,7 +42,17 @@ const MainLayout = () => {
                 </nav>
 
                 <div className="sidebar-footer">
-                    <p>Hospital API Console</p>
+                    {user && (
+                        <p className="sidebar-user-name">{user.name}</p>
+                    )}
+                    <button
+                        className="sidebar-logout-btn"
+                        onClick={handleLogout}
+                        id="logout-btn"
+                    >
+                        <LogOut size={16} />
+                        <span>Sign Out</span>
+                    </button>
                 </div>
             </aside>
 
