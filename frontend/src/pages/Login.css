@@ -145,6 +145,20 @@
     border-radius: 0.5rem;
 }
 
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spin-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .login-footer {
     margin-top: 2rem;
     text-align: center;
