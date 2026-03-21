@@ -1,0 +1,211 @@
+/* ── Doctor Appointments ──────────────────────────── */
+
+.dappt-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.dappt-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dappt-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Filters */
+.dappt-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.dfilter-icon {
+    color: var(--text-light);
+    margin-right: 0.25rem;
+}
+
+.dappt-filter-btn {
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.dappt-filter-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.dappt-filter-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* Error / Loading / Empty */
+.dappt-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fef2f2;
+    color: var(--danger);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    border: 1px solid #fecaca;
+}
+
+.dappt-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: var(--text-light);
+    padding: 2rem 0;
+}
+
+.dappt-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-light);
+    padding: 3rem 0;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+}
+
+/* Spinner — reuse if already in scope */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.spin { animation: spin 0.8s linear infinite; }
+
+/* Cards */
+.dappt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.dappt-card {
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.dappt-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.dappt-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.dappt-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    letter-spacing: 0.04em;
+}
+
+.badge-scheduled { background: #eff6ff; color: #2563eb; }
+.badge-completed { background: #ecfdf5; color: #059669; }
+.badge-cancelled { background: #fef2f2; color: #dc2626; }
+
+.dappt-id {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.dappt-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.dappt-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.dappt-detail svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--text-light);
+}
+
+.dappt-notes {
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+}
+
+/* Action Buttons */
+.dappt-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+}
+
+.dappt-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.dappt-action-btn.complete {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
+}
+
+.dappt-action-btn.complete:hover {
+    background: #059669;
+    color: #fff;
+}
+
+.dappt-action-btn.cancel {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.dappt-action-btn.cancel:hover {
+    background: #dc2626;
+    color: #fff;
+}
+
+.dappt-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

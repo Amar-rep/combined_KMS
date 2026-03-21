@@ -6,6 +6,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.OffsetDateTime;
 
 @Entity
@@ -38,6 +40,7 @@ public class Doctor {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "department_id")
+    @JsonIgnoreProperties({"doctors", "hibernateLazyInitializer", "handler"})
     private Department department;
 
     @ColumnDefault("CURRENT_TIMESTAMP")

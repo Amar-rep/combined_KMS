@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -30,5 +32,6 @@ public class Department {
     private OffsetDateTime createdAt;
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"department", "hibernateLazyInitializer", "handler"})
     private List<Doctor> doctors;
 }

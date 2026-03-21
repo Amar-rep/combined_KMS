@@ -25,10 +25,13 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+// Load persisted auth from sessionStorage (survives refresh)
+const persisted = JSON.parse(sessionStorage.getItem('auth'));
+
 const initialState = {
-    user: null,
-    role: null, // 'patient' | 'doctor'
-    isAuthenticated: false,
+    user: persisted?.user ?? null,
+    role: persisted?.role ?? null,
+    isAuthenticated: persisted?.isAuthenticated ?? false,
     loading: false,
     error: null,
 };
@@ -43,6 +46,7 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.loading = false;
             state.error = null;
+            sessionStorage.removeItem('auth');
         },
         clearError: (state) => {
             state.error = null;
@@ -60,6 +64,11 @@ const authSlice = createSlice({
                 state.role = action.payload.role;
                 state.isAuthenticated = true;
                 state.error = null;
+                sessionStorage.setItem('auth', JSON.stringify({
+                    user: action.payload.user,
+                    role: action.payload.role,
+                    isAuthenticated: true,
+                }));
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
