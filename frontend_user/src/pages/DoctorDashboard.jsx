@@ -1,43 +1,47 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { selectKeccakId } from '../features/auth/authSlice';
 import PatientList from '../components/PatientList';
-import GroupList from '../components/GroupList';
+import DoctorGroupList from '../components/DoctorGroupList';
 import DoctorAppointments from '../components/DoctorAppointments';
-import { PlusCircle, Shield, Users, CalendarDays } from 'lucide-react';
+import UserWalletModal from '../components/UserWallet';          // ← NEW
+import { Shield, Users, CalendarDays, Wallet } from 'lucide-react';  // ← Wallet icon
 import './DoctorDashboard.css';
 
 const TABS = [
-    { key: 'patients', label: 'Patients', icon: Users },
+    { key: 'patients',     label: 'Patients',     icon: Users        },
     { key: 'appointments', label: 'Appointments', icon: CalendarDays },
 ];
 
 const DoctorDashboard = () => {
     const [selectedPatient, setSelectedPatient] = useState(null);
-    const [activeTab, setActiveTab] = useState('patients');
+    const [activeTab, setActiveTab]             = useState('patients');
+    const [walletOpen, setWalletOpen]           = useState(false);       // ← NEW
+    const [walletResult, setWalletResult]       = useState(null);        // ← NEW
 
-    // Mock data for patient groups (in real app, fetch this when patient is selected)
-    const mockPatientGroups = [
-        {
-            id: 'pg1',
-            name: 'Cardiology Records',
-            records: [
-                { id: 'r1', name: 'Heart Scan 2023', date: '2023-01-15' },
-            ]
-        },
-        {
-            id: 'pg2',
-            name: 'Lab Results',
-            records: []
-        }
-    ];
+    const handleWalletSelect = (result) => {
+        setWalletResult(result);
+        setWalletOpen(false);
+    };
 
     return (
-        <div className="dashboard-containerdoctor-dashboard">
+        <div className="dashboard-container doctor-dashboard">
             <header className="dashboard-header">
-                <h1 className="heading-lg">Doctor Dashboard</h1>
-                <p className="dashboard-subtitle">Manage patients and request record access.</p>
+                <div>
+                    <h1 className="heading-lg">Doctor Dashboard</h1>
+                    <p className="dashboard-subtitle">Manage patients and request record access.</p>
+                </div>
+
+                {/* Wallet button lives in the header, always accessible */}
+                <button
+                    className="btn btn-secondary wallet-header-btn"
+                    onClick={() => setWalletOpen(true)}
+                >
+                    <Wallet size={16} />
+                    <span>Wallet</span>
+                </button>
             </header>
 
-            {/* ── Tab Navigation ── */}
             <nav className="dash-tabs">
                 {TABS.map(({ key, label, icon: Icon }) => (
                     <button
@@ -45,13 +49,11 @@ const DoctorDashboard = () => {
                         className={`dash-tab ${activeTab === key ? 'active' : ''}`}
                         onClick={() => setActiveTab(key)}
                     >
-                        <Icon size={16} />
-                        <span>{label}</span>
+                        <Icon size={16} /><span>{label}</span>
                     </button>
                 ))}
             </nav>
 
-            {/* ── Patients Tab ── */}
             {activeTab === 'patients' && (
                 <div className="doctor-grid">
                     <aside className="doctor-sidebar">
@@ -69,29 +71,31 @@ const DoctorDashboard = () => {
                                         <h2 className="heading-md">{selectedPatient.name}</h2>
                                         <span className="patient-id">ID: {selectedPatient.id}</span>
                                     </div>
-                                    <button className="request-access-btn">
-                                        <PlusCircle size={18} />
-                                        <span>Request Group Access</span>
-                                    </button>
                                 </div>
 
                                 <div className="patient-content">
-                                    <GroupList groups={mockPatientGroups} />
+                                    <DoctorGroupList patientKeccak={selectedPatient.patientIdKeccak} />
                                 </div>
                             </div>
                         ) : (
                             <div className="empty-state">
                                 <Shield size={48} className="empty-icon" />
                                 <h3 className="heading-md">Select a Patient</h3>
-                                <p>Choose a patient from the list to view their records and groups.</p>
+                                <p>Choose a patient from the list to view their records and request group access.</p>
                             </div>
                         )}
                     </main>
                 </div>
             )}
 
-            {/* ── Appointments Tab ── */}
             {activeTab === 'appointments' && <DoctorAppointments />}
+
+            {/* Wallet modal — rendered at root level so it overlays everything */}
+            <UserWalletModal
+                isOpen={walletOpen}
+                onClose={() => setWalletOpen(false)}
+                onSelect={handleWalletSelect}
+            />
         </div>
     );
 };

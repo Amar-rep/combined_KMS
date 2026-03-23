@@ -83,6 +83,8 @@ export const { logout, clearError } = authSlice.actions;
 export const selectUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectRole = (state) => state.auth.role;
+export const selectKeccakId = (state) => state.auth.user?.patientIdKeccak;
+export const selectDoctorKeccakId = (state) => state.auth.user?.doctorIdKeccak;
 export const selectAuthError = (state) => state.auth.error;
 export const selectLoading = (state) => state.auth.loading;
 

@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { selectGroups } from '../features/groups/groupsSlice';
-import { Folder, ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { selectKeccakId } from '../features/auth/authSlice';
+import { Folder, ChevronDown, ChevronUp, FileText, AlertCircle, Loader } from 'lucide-react';
 import './GroupList.css';
+
+const BASE = 'http://localhost:8083';
 
 const RecordItem = ({ record }) => (
     <div className="record-item">
@@ -14,48 +16,97 @@ const RecordItem = ({ record }) => (
     </div>
 );
 
-const GroupItem = ({ group }) => {
+const GroupItem = ({ group, selectable, selected, onSelect }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const records = group.records ?? [];
 
     return (
-        <div className={`group-item ${isOpen ? 'open' : ''}`}>
-            <div className="group-header" onClick={() => setIsOpen(!isOpen)}>
+        <div className={`group-item ${isOpen ? 'open' : ''} ${selected ? 'selected-group' : ''}`}>
+            <div
+                className="group-header"
+                onClick={() => selectable ? onSelect(group) : setIsOpen(!isOpen)}
+            >
                 <div className="group-title-section">
+                    {selectable && (
+                        <input
+                            type="radio"
+                            checked={selected}
+                            onChange={() => onSelect(group)}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    )}
                     <Folder size={20} className="group-icon" />
                     <span className="group-name">{group.name}</span>
-                    <span className="record-count">{group.records.length} records</span>
+                    <span className="record-count">{records.length} records</span>
                 </div>
-                {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                {!selectable && (isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
             </div>
 
-            {isOpen && (
+            {!selectable && isOpen && (
                 <div className="group-records">
-                    {group.records.map((record) => (
-                        <RecordItem key={record.id} record={record} />
-                    ))}
-                    {group.records.length === 0 && (
-                        <div className="empty-records">No records in this group</div>
-                    )}
+                    {records.length > 0
+                        ? records.map((r) => <RecordItem key={r.id} record={r} />)
+                        : <div className="empty-records">No records in this group</div>
+                    }
                 </div>
             )}
         </div>
     );
 };
 
-const GroupList = ({ groups: propGroups }) => {
-    const storeGroups = useSelector(selectGroups);
-    const groups = propGroups || storeGroups;
+// userIdKeccak prop → doctor passing patient's keccak
+// no prop          → falls back to logged-in user's keccak from Redux
+const GroupList = ({ userIdKeccak: propKeccak, selectable, selectedGroupId, onSelectGroup }) => {
+    const authKeccak = useSelector(selectKeccakId);
+    const keccakId   = propKeccak ?? authKeccak;
+
+    const [groups, setGroups]   = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError]     = useState(null);
+
+    useEffect(() => {
+        if (!keccakId) return;
+        const fetchGroups = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await fetch(`${BASE}/api/hospital/groups/user/${keccakId}`);
+                if (!res.ok) throw new Error(await res.text());
+                setGroups(await res.json());
+            } catch (e) {
+                setError(e.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchGroups();
+    }, [keccakId]);
 
     return (
         <div className="card group-list-card">
             <div className="card-header">
-                <h2 className="heading-md">{propGroups ? "Patient's Groups" : "My Groups"}</h2>
+                <h2 className="heading-md">{propKeccak ? "Patient's Groups" : 'My Groups'}</h2>
             </div>
             <div className="groups-container">
-                {groups.map((group) => (
-                    <GroupItem key={group.id} group={group} />
-                ))}
-                {groups.length === 0 && (
+                {loading ? (
+                    <div className="status-container">
+                        <Loader size={20} className="spin" /> <span>Loading groups...</span>
+                    </div>
+                ) : error ? (
+                    <div className="status-container error">
+                        <AlertCircle size={20} /> <span>{error}</span>
+                    </div>
+                ) : groups.length > 0 ? (
+                    groups.map((group) => (
+                        <GroupItem
+                            key={group.groupId ?? group.id}
+                            group={group}
+                            selectable={selectable}
+                            selected={selectedGroupId === (group.groupId ?? group.id)}
+                            onSelect={onSelectGroup}
+                        />
+                    ))
+                ) : (
                     <div className="empty-groups">No groups found</div>
                 )}
             </div>

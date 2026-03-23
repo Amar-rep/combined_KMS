@@ -4,12 +4,14 @@ import { selectUser } from '../features/auth/authSlice';
 import PatientInfo from '../components/PatientInfo';
 import GroupList from '../components/GroupList';
 import PatientAppointments from '../components/PatientAppointments';
-import { LayoutDashboard, CalendarDays } from 'lucide-react';
+import PatientNotifications from '../components/PatientNotifications';
+import { LayoutDashboard, CalendarDays, Bell } from 'lucide-react';
 import './PatientDashboard.css';
 
 const TABS = [
-    { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { key: 'appointments', label: 'Appointments', icon: CalendarDays },
+    { key: 'dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
+    { key: 'appointments',  label: 'Appointments',  icon: CalendarDays    },
+    { key: 'notifications', label: 'Notifications', icon: Bell            },
 ];
 
 const PatientDashboard = () => {
@@ -23,7 +25,6 @@ const PatientDashboard = () => {
                 <p className="dashboard-subtitle">Manage your medical records and access groups.</p>
             </header>
 
-            {/* ── Tab Navigation ── */}
             <nav className="dash-tabs">
                 {TABS.map(({ key, label, icon: Icon }) => (
                     <button
@@ -37,13 +38,11 @@ const PatientDashboard = () => {
                 ))}
             </nav>
 
-            {/* ── Tab Content ── */}
             {activeTab === 'dashboard' && (
                 <div className="dashboard-grid">
                     <aside className="dashboard-sidebar">
                         <PatientInfo user={user} />
                     </aside>
-
                     <main className="dashboard-main">
                         <GroupList />
                     </main>
@@ -51,6 +50,7 @@ const PatientDashboard = () => {
             )}
 
             {activeTab === 'appointments' && <PatientAppointments />}
+            {activeTab === 'notifications' && <PatientNotifications />}
         </div>
     );
 };
