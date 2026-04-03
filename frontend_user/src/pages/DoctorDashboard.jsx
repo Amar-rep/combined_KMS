@@ -4,13 +4,15 @@ import { selectKeccakId } from '../features/auth/authSlice';
 import PatientList from '../components/PatientList';
 import DoctorGroupList from '../components/DoctorGroupList';
 import DoctorAppointments from '../components/DoctorAppointments';
-import UserWalletModal from '../components/UserWallet';          // ← NEW
-import { Shield, Users, CalendarDays, Wallet } from 'lucide-react';  // ← Wallet icon
+import DoctorNotifications from '../components/DoctorNotifications';
+import UserWalletModal from '../components/UserWallet';
+import { Shield, Users, CalendarDays, Wallet, Bell } from 'lucide-react';
 import './DoctorDashboard.css';
 
 const TABS = [
-    { key: 'patients',     label: 'Patients',     icon: Users        },
-    { key: 'appointments', label: 'Appointments', icon: CalendarDays },
+    { key: 'patients',      label: 'Patients',      icon: Users        },
+    { key: 'appointments',  label: 'Appointments',  icon: CalendarDays },
+    { key: 'notifications', label: 'Notifications', icon: Bell         },
 ];
 
 const DoctorDashboard = () => {
@@ -89,6 +91,7 @@ const DoctorDashboard = () => {
             )}
 
             {activeTab === 'appointments' && <DoctorAppointments />}
+            {activeTab === 'notifications' && <DoctorNotifications />}
 
             {/* Wallet modal — rendered at root level so it overlays everything */}
             <UserWalletModal
