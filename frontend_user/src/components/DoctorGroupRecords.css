@@ -1,0 +1,262 @@
+/* ── Status badges in group header ── */
+.dgl-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.dgl-badge-green { background: #d1fae5; color: #065f46; }
+.dgl-badge-amber { background: #fef3c7; color: #92400e; }
+.dgl-badge-red   { background: #fee2e2; color: #991b1b; }
+
+.dgl-revoked {
+    opacity: 0.7;
+    border-color: #fca5a5 !important;
+}
+
+.dgl-revoked-msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #991b1b;
+    background: #fef2f2;
+    border-radius: 8px;
+    margin: 8px 12px;
+}
+
+/* ── Doctor Records Panel ── */
+.drp-panel {
+    padding: 10px 14px;
+    animation: drpSlide 0.2s ease;
+}
+
+@keyframes drpSlide {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.drp-upload {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.drp-file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    padding: 7px 12px;
+    border: 1px dashed var(--border, #e2e8f0);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 12px;
+    color: var(--text-secondary, #64748b);
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: border-color 0.2s;
+}
+
+.drp-file-label:hover {
+    border-color: var(--primary, #3b82f6);
+    color: var(--primary, #3b82f6);
+}
+
+.drp-file-input { display: none; }
+
+.drp-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary, #3b82f6);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.drp-upload-btn:hover:not(:disabled) { background: var(--primary-hover, #2563eb); }
+.drp-upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.drp-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #dc2626;
+}
+
+.drp-loading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 0;
+    font-size: 12px;
+    color: var(--text-light, #94a3b8);
+}
+
+.drp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.drp-record {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background 0.15s;
+    cursor: pointer;
+}
+
+.drp-record:hover { background: #fff; }
+
+.drp-rec-icon { color: var(--primary, #3b82f6); flex-shrink: 0; }
+
+.drp-rec-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.drp-rec-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-main, #0f172a);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drp-rec-meta {
+    font-size: 11px;
+    color: var(--text-light, #94a3b8);
+}
+
+.drp-empty {
+    font-size: 12px;
+    color: var(--text-light, #94a3b8);
+    font-style: italic;
+    padding: 8px 0;
+}
+
+/* Document Preview Modal */
+.doc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.doc-modal-content {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 900px;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: slideUp 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.doc-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.doc-modal-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main, #0f172a);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.doc-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-light, #94a3b8);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.doc-modal-close:hover {
+    background: #f1f5f9;
+    color: #dc2626;
+}
+
+.doc-modal-body {
+    flex: 1;
+    min-height: 0;
+    background: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.doc-modal-body img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.doc-modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #fff;
+}
+
+.doc-modal-loading {
+    color: var(--primary, #3b82f6);
+}

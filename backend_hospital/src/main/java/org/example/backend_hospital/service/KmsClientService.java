@@ -238,6 +238,23 @@ public class KmsClientService {
         }
     }
 
+    public KmsNotificationDTO updateNotificationStatus(Long id, String status) {
+        try {
+            return restClient.patch()
+                    .uri("/api/kms/notifications/{id}/status", id)
+                    .body(status)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, res) -> {
+                        String errorBody = new String(res.getBody().readAllBytes());
+                        throw new RuntimeException("Error updating notification status: " + errorBody);
+                    })
+                    .body(KmsNotificationDTO.class);
+        } catch (Exception e) {
+            log.error("Failed to update notification status in KMS", e);
+            throw new RuntimeException("KMS Update Notification Status Failed", e);
+        }
+    }
+
     // group-access points
     //////////////////////////////////////////////////////////////////////
     ///

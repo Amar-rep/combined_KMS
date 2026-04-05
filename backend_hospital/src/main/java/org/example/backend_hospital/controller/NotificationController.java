@@ -59,4 +59,11 @@ public class NotificationController {
             @PathVariable String hospitalId) {
         return ResponseEntity.ok(notificationService.getNotificationsBySenderAndHospital(senderIdKeccak, hospitalId));
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<KmsNotificationDTO> updateNotificationStatus(
+            @PathVariable Long id,
+            @RequestBody String status) {
+        return ResponseEntity.ok(notificationService.updateNotificationStatus(id, status));
+    }
 }
