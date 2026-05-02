@@ -14,6 +14,7 @@ import java.util.List;
 public class NotificationService {
 
     private final KmsClientService kmsClientService;
+    private final BlockchainAuditLogger blockchainAuditLogger;
 
     public KmsNotificationDTO createNotification(String senderIdKeccak, String receiverIdKeccak,
             String hospitalId, String groupId) {
@@ -25,7 +26,13 @@ public class NotificationService {
 
         log.info("Creating notification: sender={}, receiver={}, hospital={}, group={}",
                 senderIdKeccak, receiverIdKeccak, hospitalId, groupId);
-        return kmsClientService.createNotification(request);
+
+        KmsNotificationDTO result = kmsClientService.createNotification(request);
+
+        // Blockchain audit log
+        blockchainAuditLogger.logNotificationCreated(senderIdKeccak, receiverIdKeccak, hospitalId, groupId);
+
+        return result;
     }
 
     public KmsNotificationDTO getNotificationById(Long id) {
@@ -54,6 +61,12 @@ public class NotificationService {
 
     public KmsNotificationDTO updateNotificationStatus(Long id, String status) {
         log.info("Updating notification {} status to {}", id, status);
-        return kmsClientService.updateNotificationStatus(id, status);
+
+        KmsNotificationDTO result = kmsClientService.updateNotificationStatus(id, status);
+
+        // Note: Blockchain audit logging is handled by DocumentService
+        // (giveAccess / revokeAccess) to avoid duplicate logs.
+
+        return result;
     }
 }

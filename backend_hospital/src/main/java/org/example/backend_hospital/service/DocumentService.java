@@ -20,7 +20,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DocumentService {
@@ -31,6 +33,7 @@ public class DocumentService {
     private final GroupAccessService groupAccessService;
     private final GroupAccessRepository groupAccessRepository;
     private final AppConfig appConfig;
+    private final BlockchainAuditLogger blockchainAuditLogger;
 
     public KmsUploadResponseDTO createDocument(KmsUploadFileDTO documentDTO) {
         // check if senderkeccak user exist in the hospital table as docter if not
@@ -81,6 +84,14 @@ public class DocumentService {
         KmsAllowAccessResponseDTO response = kmsClientService.allowAccess(request);
         String hospitalId = appConfig.getId();
         groupAccessService.syncGroupAccessFromKms(hospitalId);
+
+        // Blockchain audit log
+        blockchainAuditLogger.logAccessGranted(
+                request.getReceiver_keccak(),
+                request.getSender_keccak(),
+                request.getGroupId(),
+                request.getHospital_id());
+
         return response;
     }
 
@@ -97,6 +108,12 @@ public class DocumentService {
         KmsRevokeAccessResponseDTO response = kmsClientService.revokeAccess(request);
         String hospitalId = appConfig.getId();
         groupAccessService.syncGroupAccessFromKms(hospitalId);
+
+        // Blockchain audit log
+        blockchainAuditLogger.logAccessRevoked(
+                request.getSender_keccak(),
+                request.getGroupId());
+
         return response;
     }
 }

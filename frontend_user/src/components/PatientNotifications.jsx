@@ -6,10 +6,11 @@ import {
     FolderOpen, Clock, CheckCircle2, ShieldCheck, ShieldX,
     KeyRound, Save, Trash2
 } from 'lucide-react';
+import { logBlockchainEvent } from '../utils/blockchainLogger';
 import './PatientNotifications.css';
 
 const BASE = 'http://localhost:8083';
-const DEFAULT_HOSPITAL_ID = 'bJwqraIk3w';
+const DEFAULT_HOSPITAL_ID = 'nT9zlPMjui';
 const SIG_STORAGE_KEY = 'patient_signature_base64';
 
 /* ── helpers ── */
@@ -95,6 +96,16 @@ const NotificationCard = ({ notification, patientKeccak, onRefresh }) => {
                 }),
             });
             if (!res.ok) throw new Error(await res.text());
+
+            // Log blockchain event for access granted
+            logBlockchainEvent('ACCESS_GRANTED', {
+                doctorId: notification.senderIdKeccak,
+                patientId: patientKeccak,
+                groupId: notification.groupId,
+                hospitalId: notification.hospitalId ?? DEFAULT_HOSPITAL_ID,
+                notificationId: notification.id,
+            });
+
             onRefresh();
         } catch (e) { setErr(e.message); } finally { setBusy(false); }
     };
@@ -124,6 +135,15 @@ const NotificationCard = ({ notification, patientKeccak, onRefresh }) => {
                 body: 'revoke',
             });
             if (!res2.ok) throw new Error(await res2.text());
+
+            // Log blockchain event for access revoked
+            logBlockchainEvent('ACCESS_REVOKED', {
+                doctorId: notification.senderIdKeccak,
+                patientId: patientKeccak,
+                groupId: notification.groupId,
+                hospitalId: notification.hospitalId ?? DEFAULT_HOSPITAL_ID,
+                notificationId: notification.id,
+            });
 
             onRefresh();
         } catch (e) { setErr(e.message); } finally { setRevoking(false); }

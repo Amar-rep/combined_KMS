@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { selectDoctorKeccakId } from '../features/auth/authSlice';
 import {
     Folder, ChevronDown, ChevronUp, FileText, AlertCircle,
     Loader, Bell, Plus, Upload, ShieldX, CheckCircle2, Lock, X
 } from 'lucide-react';
+import { logBlockchainEvent } from '../utils/blockchainLogger';
 import './GroupList.css';
 import './DoctorGroupRecords.css';
 
 const BASE = 'http://localhost:8083';
-const DEFAULT_HOSPITAL_ID = 'bJwqraIk3w';
+const DEFAULT_HOSPITAL_ID = 'nT9zlPMjui';
 
 const isAccepted = (s) => (s ?? '').toUpperCase().startsWith('ACCEPT');
 const isRevoked  = (s) => (s ?? '').toUpperCase().startsWith('REVOKE');
@@ -88,6 +89,14 @@ const RecordsPanel = ({ groupId, patientKeccak, doctorKeccak }) => {
             const blob = await res.blob();
             const url = window.URL.createObjectURL(blob);
             setViewingRecord({ fileName: r.fileName, fileType: r.fileType || 'application/octet-stream', url, _blobUrl: url });
+
+            // Log blockchain event for document view
+            logBlockchainEvent('DOCUMENT_VIEWED', {
+                doctorId: doctorKeccak,
+                patientId: patientKeccak,
+                groupId,
+                fileName: r.fileName,
+            });
         } catch (err) {
             console.error('Error viewing file:', err);
             setViewingRecord(null);
@@ -111,6 +120,18 @@ const RecordsPanel = ({ groupId, patientKeccak, doctorKeccak }) => {
                             <button className="doc-modal-close" onClick={closeView}><X size={20} /></button>
                         </div>
                         <div className="doc-modal-body" onContextMenu={(e) => e.preventDefault()}>
+                            {/* Watermark overlay */}
+                            <div className="doc-watermark-overlay">
+                                <div className="doc-watermark-inner">
+                                    {Array.from({ length: 30 }).map((_, i) => (
+                                        <span key={i} className="doc-watermark-text">
+                                            <span className="wm-label">Viewed By Doctor</span>
+                                            <span className="wm-id">{doctorKeccak}</span>
+                                            <span className="wm-time">{new Date().toISOString()}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
                             {viewingRecord.url ? (
                                 viewingRecord.fileType.startsWith('image/') ? (
                                     <img src={viewingRecord.url} alt={viewingRecord.fileName} />
@@ -302,6 +323,14 @@ const DoctorGroupList = ({ patientKeccak }) => {
             setNotifySuccess((p) => ({ ...p, [groupId]: true }));
             // Update status immediately to 'active' (pending)
             setNotifStatuses((p) => ({ ...p, [groupId]: 'active' }));
+
+            // Log blockchain event for access request
+            logBlockchainEvent('ACCESS_REQUEST', {
+                doctorId: doctorKeccak,
+                patientId: patientKeccak,
+                groupId,
+                hospitalId: DEFAULT_HOSPITAL_ID,
+            });
         } catch (e) {
             setNotifyError((p) => ({ ...p, [groupId]: e.message }));
         } finally {
