@@ -51,4 +51,8 @@ public class NotificationService {
     public List<KmsNotificationDTO> getNotificationsBySenderAndHospital(String senderIdKeccak, String hospitalId) {
         return kmsClientService.getNotificationsBySenderAndHospital(senderIdKeccak, hospitalId);
     }
+
+    public KmsNotificationDTO updateNotificationStatus(Long id, String status) {
+        return kmsClientService.updateNotificationStatus(id, status);
+    }
 }

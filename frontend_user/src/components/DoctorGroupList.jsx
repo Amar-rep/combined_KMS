@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { selectKeccakId , selectDoctorKeccakId} from '../features/auth/authSlice';
+import { selectKeccakId, selectDoctorKeccakId } from '../features/auth/authSlice';
 import { Folder, ChevronDown, ChevronUp, FileText, AlertCircle, Loader, Bell } from 'lucide-react';
 import './GroupList.css';
 
 const BASE = 'http://localhost:8083';
-const DEFAULT_HOSPITAL_ID = 'bJwqraIk3w';
+const DEFAULT_HOSPITAL_ID = 'QNFgbf4q4r';
 
 const RecordItem = ({ record }) => (
     <div className="record-item">
@@ -68,12 +68,12 @@ const GroupItem = ({ group, onNotify, notifying, notifyError, notifySuccess }) =
 const DoctorGroupList = ({ patientKeccak }) => {
     const doctorKeccak = useSelector(selectDoctorKeccakId);
 
-    const [groups, setGroups]               = useState([]);
-    const [loading, setLoading]             = useState(false);
-    const [error, setError]                 = useState(null);
+    const [groups, setGroups] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const [notifying, setNotifying]         = useState({});
-    const [notifyError, setNotifyError]     = useState({});
+    const [notifying, setNotifying] = useState({});
+    const [notifyError, setNotifyError] = useState({});
     const [notifySuccess, setNotifySuccess] = useState({});
 
     useEffect(() => {
@@ -110,9 +110,9 @@ const DoctorGroupList = ({ patientKeccak }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    senderIdKeccak:   doctorKeccak,
+                    senderIdKeccak: doctorKeccak,
                     receiverIdKeccak: patientKeccak,
-                    hospitalId:       DEFAULT_HOSPITAL_ID,
+                    hospitalId: DEFAULT_HOSPITAL_ID,
                     groupId,
                 }),
             });

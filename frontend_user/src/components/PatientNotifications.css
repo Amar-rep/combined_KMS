@@ -9,7 +9,7 @@
     min-width: 24px;
     height: 24px;
     padding: 0 7px;
-    background: var(--color-primary);
+    background: var(--color-primary, #4f6ef7);
     color: white;
     border-radius: 999px;
     font-size: 12px;
@@ -19,71 +19,214 @@
 .notifications-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     padding: 12px 16px;
 }
 
 .notification-card {
     display: flex;
-    gap: 14px;
-    padding: 14px;
+    gap: 16px;
+    padding: 16px;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--bg-surface, #fff);
-    transition: box-shadow 0.15s;
+    transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .notification-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
 }
 
 .notification-icon-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-    color: var(--color-primary);
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-primary, #4f6ef7) 10%, transparent);
+    color: var(--color-primary, #4f6ef7);
     flex-shrink: 0;
 }
 
 .notification-body {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
     flex: 1;
     min-width: 0;
 }
 
-.notification-row {
+.notification-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.notification-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notification-time {
     display: flex;
     align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.notification-details-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.detail-pill {
+    display: inline-flex;
+    align-items: center;
     gap: 6px;
+    padding: 4px 10px;
+    background: var(--bg-body, #f8f9fa);
+    border: 1px solid var(--border, #eee);
+    border-radius: 6px;
     font-size: 13px;
+    white-space: nowrap;
 }
 
 .meta-icon {
     color: var(--text-muted);
-    flex-shrink: 0;
 }
 
-.meta-label {
-    color: var(--text-muted);
+.meta-text {
     font-weight: 500;
-    width: 52px;
-    flex-shrink: 0;
+    color: var(--text-secondary, #444);
 }
 
-.meta-value {
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.meta-value.mono {
+.meta-text.mono {
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 12px;
+    color: var(--text-muted);
+}
+
+.notification-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 4px;
+}
+
+.action-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.action-buttons-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-accept-glow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    background: linear-gradient(135deg, var(--color-primary, #4f6ef7), #6b86f2);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary, #4f6ef7) 30%, transparent);
+    transition: all 0.2s;
+}
+
+.btn-accept-glow:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary, #4f6ef7) 45%, transparent);
+}
+
+.btn-accept-glow:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-reject {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border, #eee);
+    background: transparent;
+    color: var(--text-muted, #777);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover:not(:disabled) {
+    background: #fff0f0;
+    color: #e53e3e;
+    border-color: #fc8181;
+}
+
+.btn-reject:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.accept-error {
+    font-size: 12px;
+    color: #e53e3e;
+}
+
+/* ─── Accepted state ─── */
+.notification-card.accepted {
+    border-color: #38a169;
+    background: color-mix(in srgb, #38a169 3%, var(--bg-surface, #fff));
+}
+
+.notification-card.accepted .notification-icon-wrap {
+    background: color-mix(in srgb, #38a169 15%, transparent);
+    color: #38a169;
+}
+
+.accepted-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #38a169;
+}
+
+/* ─── Rejected state ─── */
+.notification-card.rejected {
+    border-color: #e53e3e;
+    background: color-mix(in srgb, #e53e3e 3%, var(--bg-surface, #fff));
+    opacity: 0.8;
+}
+
+.notification-card.rejected .notification-icon-wrap {
+    background: color-mix(in srgb, #e53e3e 15%, transparent);
+    color: #e53e3e;
+}
+
+.rejected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #e53e3e;
 }

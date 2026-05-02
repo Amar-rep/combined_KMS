@@ -23,12 +23,10 @@ public class IpfsService {
 
     private IPFS ipfs;
 
-
     private IPFS getIpfs() {
         if (ipfs == null) {
             try {
-                String multiAddress = String.format("/ip4/%s/tcp/%d", ipfsApiHost, ipfsApiPort);
-                ipfs = new IPFS(multiAddress);
+                ipfs = new IPFS(ipfsApiHost, ipfsApiPort);
             } catch (Exception e) {
                 throw new IpfsConnectionException(
                         String.format("Failed to connect to IPFS at %s:%d - %s", ipfsApiHost, ipfsApiPort,
@@ -38,7 +36,6 @@ public class IpfsService {
         }
         return ipfs;
     }
-
 
     public String upload(byte[] data) {
         try {
@@ -52,7 +49,6 @@ public class IpfsService {
             throw new IpfsUploadException("Error uploading data to IPFS: " + e.getMessage(), e);
         }
     }
-
 
     public byte[] fetch(String cid) {
         try {

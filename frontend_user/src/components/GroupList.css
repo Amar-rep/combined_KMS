@@ -167,3 +167,58 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.document-modal {
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    border-radius: var(--radius-lg, 8px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.document-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+}
+
+.document-modal .modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.document-modal .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.document-modal .modal-body {
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}

@@ -6,7 +6,7 @@ import { Wallet } from 'ethers'
 import eccrypto from 'eccrypto'
 import './UserWallet.css'
 
-export default function UserWallet({ isOpen, onClose, onSelect }) {
+export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 'exportBase64Pub', defaultNonce = '' }) {
     const [view, setView] = useState('select')
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
@@ -16,9 +16,9 @@ export default function UserWallet({ isOpen, onClose, onSelect }) {
 
     const [selectedUser, setSelectedUser] = useState(null)
     const [actionForm, setActionForm] = useState({
-        actionType: 'exportBase64Pub',
+        actionType: defaultAction,
         password: '',
-        nonce: '',
+        nonce: defaultNonce,
         encryptedGroupKey: ''       // ← NEW FIELD
     })
 
@@ -29,9 +29,9 @@ export default function UserWallet({ isOpen, onClose, onSelect }) {
             setError(null)
             setSelectedUser(null)
             setAddForm({ name: '', publicKeyHex: '', privateKeyHex: '', password: '' })
-            setActionForm({ actionType: 'exportBase64Pub', password: '', nonce: '', encryptedGroupKey: '' })
+            setActionForm({ actionType: defaultAction, password: '', nonce: defaultNonce, encryptedGroupKey: '' })
         }
-    }, [isOpen])
+    }, [isOpen, defaultAction, defaultNonce])
 
     const loadUsers = async () => {
         try {
@@ -116,9 +116,9 @@ export default function UserWallet({ isOpen, onClose, onSelect }) {
                 if (encBytes.length < 129) throw new Error('Payload too short to be valid ECIES ciphertext.')
 
                 const ephemPublicKey = encBytes.slice(0, 65)
-                const iv            = encBytes.slice(65, 81)
-                const mac           = encBytes.slice(encBytes.length - 32)
-                const ciphertext    = encBytes.slice(81, encBytes.length - 32)
+                const iv = encBytes.slice(65, 81)
+                const mac = encBytes.slice(encBytes.length - 32)
+                const ciphertext = encBytes.slice(81, encBytes.length - 32)
 
                 const decrypted = await eccrypto.decrypt(privateKey, { iv, ephemPublicKey, ciphertext, mac })
                 resultString = decrypted.toString('base64')
