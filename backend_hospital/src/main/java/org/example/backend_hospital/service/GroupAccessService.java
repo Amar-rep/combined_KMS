@@ -33,6 +33,14 @@ public class GroupAccessService {
         return groupAccessRepository.findByHospitalId(hospitalId);
     }
 
+    public List<GroupAccess> getByDoctorKeccakAndHospitalId(String doctorKeccak, String hospitalId) {
+        return groupAccessRepository.findByDoctor_DoctorIdKeccakAndHospitalId(doctorKeccak, hospitalId);
+    }
+
+    public List<GroupAccess> getByPatientKeccakAndHospitalId(String patientKeccak, String hospitalId) {
+        return groupAccessRepository.findByGroup_User_PatientIdKeccakAndHospitalId(patientKeccak, hospitalId);
+    }
+
     @Transactional
     public List<GroupAccess> syncGroupAccessFromKms(String hospitalId) {
         List<KmsGroupAccessDTO> kmsRows = kmsClientService.getGroupAccessesByHospitalId(hospitalId);

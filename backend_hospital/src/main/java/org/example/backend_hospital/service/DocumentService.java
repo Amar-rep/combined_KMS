@@ -16,6 +16,8 @@ import org.example.backend_hospital.repository.GroupAccessRepository;
 import org.example.backend_hospital.config.AppConfig;
 import org.example.backend_hospital.exception.AccessDeniedException;
 import org.example.backend_hospital.entity.GroupAccess;
+import org.example.backend_hospital.dto.kms.KmsNotificationDTO;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ public class DocumentService {
     private final GroupRepository groupRepository;
     private final GroupAccessService groupAccessService;
     private final GroupAccessRepository groupAccessRepository;
+    private final NotificationService notificationService;
     private final AppConfig appConfig;
 
     public KmsUploadResponseDTO createDocument(KmsUploadFileDTO documentDTO) {
@@ -97,6 +100,17 @@ public class DocumentService {
         KmsRevokeAccessResponseDTO response = kmsClientService.revokeAccess(request);
         String hospitalId = appConfig.getId();
         groupAccessService.syncGroupAccessFromKms(hospitalId);
+        resetNotificationsAfterRevoke(request.getSender_keccak(), request.getGroupId(), hospitalId);
         return response;
+    }
+
+    private void resetNotificationsAfterRevoke(String patientKeccak, String groupId, String hospitalId) {
+        List<KmsNotificationDTO> notifications = notificationService.getNotificationsByHospital(patientKeccak, hospitalId);
+
+        notifications.stream()
+                .filter(notification -> groupId.equals(notification.getGroupId()))
+                .filter(notification -> !"reject".equalsIgnoreCase(notification.getStatus())
+                        && !"rejected".equalsIgnoreCase(notification.getStatus()))
+                .forEach(notification -> notificationService.updateNotificationStatus(notification.getId(), "reject"));
     }
 }

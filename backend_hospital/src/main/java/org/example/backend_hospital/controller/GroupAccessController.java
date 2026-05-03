@@ -28,6 +28,20 @@ public class GroupAccessController {
         return ResponseEntity.ok(groupAccessService.getByHospitalId(hospitalId));
     }
 
+    @GetMapping("/doctor/{doctorKeccak}/hospital/{hospitalId}")
+    public ResponseEntity<List<GroupAccess>> getByDoctorAndHospital(
+            @PathVariable String doctorKeccak,
+            @PathVariable String hospitalId) {
+        return ResponseEntity.ok(groupAccessService.getByDoctorKeccakAndHospitalId(doctorKeccak, hospitalId));
+    }
+
+    @GetMapping("/patient/{patientKeccak}/hospital/{hospitalId}")
+    public ResponseEntity<List<GroupAccess>> getByPatientAndHospital(
+            @PathVariable String patientKeccak,
+            @PathVariable String hospitalId) {
+        return ResponseEntity.ok(groupAccessService.getByPatientKeccakAndHospitalId(patientKeccak, hospitalId));
+    }
+
     @GetMapping("/key")
     public ResponseEntity<String> getEncryptedGroupKey(
             @RequestParam String groupId,

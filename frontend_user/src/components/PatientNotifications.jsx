@@ -175,7 +175,7 @@ const PatientNotifications = () => {
             const res = await fetch(`${BASE}/api/notifications/${notifId}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'text/plain' },
-                body: "rejected",
+                body: "reject",
             });
 
             if (!res.ok) throw new Error(await res.text());
@@ -205,7 +205,7 @@ const PatientNotifications = () => {
             const payload = {
                 sender_keccak: keccakId,
                 hospital_id: activeNotification.hospitalId,
-                receiver_keccak: keccakId,
+                receiver_keccak: activeNotification.senderIdKeccak,
                 notificationId: activeNotification.id ?? activeNotification.notificationId,
                 groupId: activeNotification.groupId,
                 nonce: "nonce",
@@ -219,6 +219,13 @@ const PatientNotifications = () => {
             });
 
             if (!res.ok) throw new Error(await res.text());
+
+            // Immediately sync group access after granting access
+            await fetch(`${BASE}/api/group-access/sync`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hospitalId: activeNotification.hospitalId }),
+            }).catch(e => console.error("Failed to sync group access", e));
 
             // Mark as accepted locally
             setAcceptedIds((prev) => new Set(prev).add(activeNotification.id ?? activeNotification.notificationId));
@@ -259,8 +266,8 @@ const PatientNotifications = () => {
                             <NotificationCard
                                 key={notifId}
                                 notification={n}
-                                isAccepted={acceptedIds.has(notifId)}
-                                isRejected={rejectedIds.has(notifId)}
+                                isAccepted={n.status === 'accept' || acceptedIds.has(notifId)}
+                                isRejected={n.status === 'reject' || n.status === 'rejected' || rejectedIds.has(notifId)}
                                 isProcessing={isActive && actionProcessing}
                                 isRejecting={rejectProcessingFor === notifId}
                                 actionError={isActive ? actionError : null}

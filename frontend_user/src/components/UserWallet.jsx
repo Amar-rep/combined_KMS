@@ -6,7 +6,9 @@ import { Wallet } from 'ethers'
 import eccrypto from 'eccrypto'
 import './UserWallet.css'
 
-export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 'exportBase64Pub', defaultNonce = '' }) {
+const BASE = 'http://localhost:8083';
+
+export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 'exportBase64Pub', defaultNonce = '', defaultGroupId = '', defaultDoctorId = '' }) {
     const [view, setView] = useState('select')
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
@@ -19,7 +21,9 @@ export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 
         actionType: defaultAction,
         password: '',
         nonce: defaultNonce,
-        encryptedGroupKey: ''       // ← NEW FIELD
+        encryptedGroupKey: '',
+        groupId: defaultGroupId,
+        doctorId: defaultDoctorId
     })
 
     useEffect(() => {
@@ -29,9 +33,9 @@ export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 
             setError(null)
             setSelectedUser(null)
             setAddForm({ name: '', publicKeyHex: '', privateKeyHex: '', password: '' })
-            setActionForm({ actionType: defaultAction, password: '', nonce: defaultNonce, encryptedGroupKey: '' })
+            setActionForm({ actionType: defaultAction, password: '', nonce: defaultNonce, encryptedGroupKey: '', groupId: defaultGroupId, doctorId: defaultDoctorId })
         }
-    }, [isOpen, defaultAction, defaultNonce])
+    }, [isOpen, defaultAction, defaultNonce, defaultGroupId, defaultDoctorId])
 
     const loadUsers = async () => {
         try {
@@ -108,10 +112,6 @@ export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 
                 const privateKey = Buffer.from(privHex, 'hex')
 
                 // Parse the ECIES ciphertext from Base64 into its components:
-                //  [0:65]   — ephemeral public key (uncompressed, 04 || x || y)
-                //  [65:81]  — AES-256-CBC IV (16 bytes)
-                //  [81:-32] — actual AES ciphertext
-                //  [-32:]   — HMAC-SHA256 MAC tag (32 bytes)
                 const encBytes = Buffer.from(actionForm.encryptedGroupKey.trim(), 'base64')
                 if (encBytes.length < 129) throw new Error('Payload too short to be valid ECIES ciphertext.')
 
@@ -122,7 +122,39 @@ export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 
 
                 const decrypted = await eccrypto.decrypt(privateKey, { iv, ephemPublicKey, ciphertext, mac })
                 resultString = decrypted.toString('base64')
-                // ─────────────────────────────────────────────────────────────
+
+            } else if (actionForm.actionType === 'decryptAndSign') {
+                // Fetch encrypted group key automatically
+                const res = await fetch(`${BASE}/api/group-access/key?groupId=${actionForm.groupId}&doctorId=${actionForm.doctorId}`);
+                if (!res.ok) throw new Error("Failed to fetch encrypted group key");
+                const fetchedEncryptedGroupKey = await res.text();
+
+                // Decrypt Key
+                const privHex = decryptedPrivKey.replace(/^0x/i, '')
+                if (privHex.length !== 64) throw new Error('Private key must be 64 hex chars.')
+                const privateKey = Buffer.from(privHex, 'hex')
+
+                const encBytes = Buffer.from(fetchedEncryptedGroupKey.trim(), 'base64')
+                if (encBytes.length < 129) throw new Error('Payload too short to be valid ECIES ciphertext.')
+
+                const ephemPublicKey = encBytes.slice(0, 65)
+                const iv = encBytes.slice(65, 81)
+                const mac = encBytes.slice(encBytes.length - 32)
+                const ciphertext = encBytes.slice(81, encBytes.length - 32)
+
+                const decrypted = await eccrypto.decrypt(privateKey, { iv, ephemPublicKey, ciphertext, mac })
+                const group_key_base64 = decrypted.toString('base64');
+
+                // Sign nonce
+                const wallet = new Wallet(decryptedPrivKey)
+                const signatureHex = await wallet.signMessage(actionForm.nonce)
+
+                const hexStr = signatureHex.startsWith('0x') ? signatureHex.slice(2) : signatureHex;
+                const sigBytes = new Uint8Array(hexStr.match(/.{2}/g).map((b) => parseInt(b, 16)));
+                const signatureBase64 = btoa(String.fromCharCode(...sigBytes));
+
+                onSelect({ group_key_base64, signature: signatureBase64 });
+                return;
             }
 
             onSelect(resultString)
@@ -214,11 +246,12 @@ export default function UserWallet({ isOpen, onClose, onSelect, defaultAction = 
                                             <option value="exportHexPub">Export Hex Public Key</option>
                                             <option value="signTransaction">Sign Transaction</option>
                                             <option value="decryptGroupKey">Decrypt Group Key (ECIES)</option>
+                                            <option value="decryptAndSign">Decrypt & Sign (Auto-Fetch)</option>
                                         </select>
                                     </div>
 
                                     {/* Existing: nonce input for signing */}
-                                    {actionForm.actionType === 'signTransaction' && (
+                                    {(actionForm.actionType === 'signTransaction' || actionForm.actionType === 'decryptAndSign') && (
                                         <div className="form-group" style={{ animation: 'modal-up 0.2s ease' }}>
                                             <label className="form-label">Nonce / Message to Sign</label>
                                             <input

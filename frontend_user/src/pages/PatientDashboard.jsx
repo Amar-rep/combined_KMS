@@ -5,13 +5,15 @@ import PatientInfo from '../components/PatientInfo';
 import GroupList from '../components/GroupList';
 import PatientAppointments from '../components/PatientAppointments';
 import PatientNotifications from '../components/PatientNotifications';
-import { LayoutDashboard, CalendarDays, Bell } from 'lucide-react';
+import PatientAccessManager from '../components/PatientAccessManager';
+import { LayoutDashboard, CalendarDays, Bell, ShieldBan } from 'lucide-react';
 import './PatientDashboard.css';
 
 const TABS = [
     { key: 'dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
     { key: 'appointments',  label: 'Appointments',  icon: CalendarDays    },
     { key: 'notifications', label: 'Notifications', icon: Bell            },
+    { key: 'access',        label: 'Access',        icon: ShieldBan       },
 ];
 
 const PatientDashboard = () => {
@@ -51,6 +53,7 @@ const PatientDashboard = () => {
 
             {activeTab === 'appointments' && <PatientAppointments />}
             {activeTab === 'notifications' && <PatientNotifications />}
+            {activeTab === 'access' && <PatientAccessManager />}
         </div>
     );
 };
