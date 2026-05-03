@@ -27,6 +27,10 @@ public class KmsClientService {
     };
 
     public KmsAppUserDTO getUserByKeccak(String keccakId) {
+        if (keccakId == null || keccakId.isBlank()) {
+            throw new IllegalArgumentException("KMS user keccak ID is required");
+        }
+
         try {
             return restClient.get()
                     .uri("/api/kms/users/{keccakId}", keccakId)

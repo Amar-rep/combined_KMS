@@ -39,7 +39,18 @@ const DoctorPage = () => {
         try {
             const payload = { ...regForm, departmentId: regForm.departmentId ? parseInt(regForm.departmentId) : null };
             const res = await api.post('/api/hospital/doctors/register', payload);
-            showResponse(res.data);
+            showResponse({
+                display: 'summary',
+                title: 'Doctor Registered',
+                message: `${res.data.name || regForm.name || 'The doctor'} has been registered successfully.`,
+                details: [
+                    { label: 'Name', value: res.data.name || regForm.name },
+                    { label: 'Specialization', value: res.data.specialization || regForm.specialization },
+                    { label: 'Email', value: res.data.email || regForm.email },
+                    { label: 'Phone', value: res.data.phone || regForm.phone },
+                    { label: 'Keccak ID', value: res.data.doctorIdKeccak },
+                ],
+            });
         } catch (e) { showError(e); }
     };
     const getById = async () => {

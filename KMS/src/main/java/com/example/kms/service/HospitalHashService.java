@@ -5,11 +5,11 @@ import com.example.kms.entity.HospitalHash;
 import com.example.kms.exception.ResourceNotFoundException;
 import com.example.kms.repository.HospitalHashRepository;
 import com.example.kms.repository.HospitalRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -25,7 +25,7 @@ public class HospitalHashService {
 
     private final HospitalHashRepository hospitalHashRepository;
     private final HospitalRepository hospitalRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
@@ -81,7 +81,7 @@ public class HospitalHashService {
     private String toStableJson(Object data) {
         try {
             return objectMapper.writeValueAsString(data);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Unable to hash request data", e);
         }
     }

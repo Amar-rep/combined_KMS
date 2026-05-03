@@ -34,7 +34,20 @@ const PatientPage = () => {
     const clearResponse = () => setResponse(null);
 
     const registerPatient = async () => {
-        try { const res = await api.post('/api/hospital/patients/register', regForm); showResponse(res.data); }
+        try {
+            const res = await api.post('/api/hospital/patients/register', regForm);
+            showResponse({
+                display: 'summary',
+                title: 'Patient Registered',
+                message: `${res.data.name || regForm.name || 'The patient'} has been registered successfully.`,
+                details: [
+                    { label: 'Name', value: res.data.name || regForm.name },
+                    { label: 'Email', value: res.data.email || regForm.email },
+                    { label: 'Phone', value: res.data.phone || regForm.phone },
+                    { label: 'Keccak ID', value: res.data.patientIdKeccak },
+                ],
+            });
+        }
         catch (e) { showError(e); }
     };
     const getById = async () => {
