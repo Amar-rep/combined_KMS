@@ -15,6 +15,7 @@ public class HospitalService {
 
     private final HospitalRepository hospitalRepository;
     private final KeyService keyService;
+    private final HospitalHashService hospitalHashService;
 
     public Hospital registerHospital(RegisterHospitalDTO dto) {
         if (!hospitalRepository.findByHospitalKeybase64(dto.getHospitalKeyBase64()).isEmpty()) {
@@ -27,7 +28,9 @@ public class HospitalService {
         hospital.setHospitalKeybase64(dto.getHospitalKeyBase64());
         hospital.setCreatedAt(OffsetDateTime.now());
 
-        return hospitalRepository.save(hospital);
+        Hospital savedHospital = hospitalRepository.save(hospital);
+        hospitalHashService.createInitialHash(savedHospital);
+        return savedHospital;
     }
 
     public Hospital findById(String hospitalId) {

@@ -27,6 +27,7 @@ import java.util.Base64;
 import javax.crypto.SecretKey;
 import java.security.PublicKey;
 import java.util.List;
+import java.util.stream.Collectors;
 import com.example.kms.dto.RevokeAccessResponseDTO;
 import com.example.kms.entity.GroupAccess;
 import java.time.OffsetDateTime;
@@ -49,6 +50,7 @@ public class FileService {
     private final HospitalRepository hospitalRepository;
     private final com.example.kms.repository.GroupAccessRepository groupAccessRepository;
     private final DocumentRequestRepository documentRequestRepository;
+    private final HospitalHashService hospitalHashService;
 
     @Transactional
     public UploadResponseDTO uploadFile(UploadFileDTO uploadFileDTO) {
@@ -101,6 +103,7 @@ public class FileService {
 
             recordRepository.save(record);
             log.info("Record created and saved with ID: {}", recordId);
+            updateHospitalHashesForDoctorGroup(groupKey.getGroupId(), sender.getUserIdKeccak(), uploadFileDTO);
 
             return new UploadResponseDTO(cid, recordId, groupKey.getGroupId());
 
@@ -152,6 +155,7 @@ public class FileService {
 
             byte[] decryptedFileData = encryptionService.decryptWithDEK(encryptedFileData, dek);
             log.info("File decrypted successfully, size: {} bytes", decryptedFileData.length);
+            updateHospitalHashesForDoctorGroup(groupKey.getGroupId(), sender.getUserIdKeccak(), downloadFileDTO);
 
             return new DownloadResponseDTO(decryptedFileData, record.getCid(), record.getRecordId());
 
@@ -218,6 +222,7 @@ public class FileService {
             log.info("Successfully encrypted group key for receiver: {}", receiver.getUserIdKeccak());
 
             groupAccessService.createGroupAccess(groupKey, receiver, hospital, encryptedGroupKey);
+            hospitalHashService.updateHospitalHash(hospital.getHospitalId(), allowAccessDTO);
 
             // Return null for groupKeyBase64 — raw key must never be exposed in the
             // response
@@ -298,6 +303,9 @@ public class FileService {
 
             docRequest.setStatus("APPROVED");
             documentRequestRepository.save(docRequest);
+            hospitalHashService.updateHospitalHashes(
+                    List.of(senderHospital.getHospitalId(), receiverHospital.getHospitalId()),
+                    dto);
 
             return new com.example.kms.dto.AllowAccessInterHospitalResponseDTO(
                     groupKey.getGroupId(),
@@ -364,6 +372,7 @@ public class FileService {
             groupKey.setGroupKeyBase64(newGroupKeyBase64);
             groupKey.setEncDekGroup(newEncDekGroup);
             groupKeyRepository.save(groupKey);
+            updateHospitalHashesForGroup(revokeAccessDTO.getGroupId(), revokeAccessDTO);
 
             return new RevokeAccessResponseDTO("SUCCESS", groupKey.getGroupId());
 
@@ -371,6 +380,27 @@ public class FileService {
             log.error("Revoke access failed", e);
             throw new RuntimeException("Revoke access failed: " + e.getMessage(), e);
         }
+    }
+
+    private void updateHospitalHashesForDoctorGroup(String groupId, String doctorKeccak, Object requestData) {
+        List<String> hospitalIds = groupAccessRepository
+                .findByGroupKey_GroupIdAndDoctor_UserIdKeccak(groupId, doctorKeccak)
+                .stream()
+                .filter(access -> access.getHospital() != null)
+                .map(access -> access.getHospital().getHospitalId())
+                .collect(Collectors.toList());
+
+        hospitalHashService.updateHospitalHashes(hospitalIds, requestData);
+    }
+
+    private void updateHospitalHashesForGroup(String groupId, Object requestData) {
+        List<String> hospitalIds = groupAccessRepository.findByGroupKey_GroupId(groupId)
+                .stream()
+                .filter(access -> access.getHospital() != null)
+                .map(access -> access.getHospital().getHospitalId())
+                .collect(Collectors.toList());
+
+        hospitalHashService.updateHospitalHashes(hospitalIds, requestData);
     }
 
 }

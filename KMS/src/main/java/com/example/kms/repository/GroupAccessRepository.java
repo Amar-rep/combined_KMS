@@ -18,4 +18,6 @@ public interface GroupAccessRepository extends JpaRepository<GroupAccess, Long> 
     List<GroupAccess> findByHospital_HospitalId(String hospitalId);
 
     List<GroupAccess> findByGroupKey_GroupId(String groupId);
+
+    List<GroupAccess> findByGroupKey_GroupIdAndDoctor_UserIdKeccak(String groupId, String doctorKeccak);
 }
