@@ -19,25 +19,28 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final KmsClientService kmsClientService;
     private final AuthenticationService authenticationService;
+    private final UserIdKeccakService userIdKeccakService;
 
     @Lazy
     private final GroupService groupService;
 
     @Transactional
     public Patient registerPatient(RegisterPatientDTO dto) {
-        if (patientRepository.findByPatientIdKeccak(dto.getPatientIdKeccak()).isPresent()) {
+        String userIdKeccak = userIdKeccakService.deriveFromPublicKeyBase64(dto.getPublicKeyBase64());
+
+        if (patientRepository.findByPatientIdKeccak(userIdKeccak).isPresent()) {
             throw new IllegalArgumentException(
-                    "Patient with keccak ID " + dto.getPatientIdKeccak() + " already exists");
+                    "Patient with keccak ID " + userIdKeccak + " already exists");
         }
 
-        KmsAppUserDTO kmsUser = kmsClientService.getUserByKeccak(dto.getPatientIdKeccak());
+        KmsAppUserDTO kmsUser = kmsClientService.getUserByKeccak(userIdKeccak);
         if (kmsUser == null) {
             throw new IllegalArgumentException("User data not found in KMS");
         }
 
         // send the hospital id to kms later
         Patient patient = new Patient();
-        patient.setPatientIdKeccak(dto.getPatientIdKeccak());
+        patient.setPatientIdKeccak(userIdKeccak);
         patient.setName(dto.getName());
         patient.setEmail(dto.getEmail());
         patient.setPhone(dto.getPhone());

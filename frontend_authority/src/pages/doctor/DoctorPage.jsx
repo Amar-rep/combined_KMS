@@ -25,7 +25,7 @@ const DoctorPage = () => {
     const [response, setResponse] = useState(null);
 
     const [regForm, setRegForm] = useState({
-        doctorIdKeccak: '', name: '', specialization: '', email: '', phone: '', departmentId: '', password: '',
+        publicKeyBase64: '', name: '', specialization: '', email: '', phone: '', departmentId: '', password: '',
     });
     const [searchId, setSearchId] = useState('');
     const [searchKeccak, setSearchKeccak] = useState('');
@@ -74,7 +74,7 @@ const DoctorPage = () => {
             <div className="page-content">
                 {mode === 'register' && (
                     <FormCard title="New Doctor" icon={UserPlus} onSubmit={registerDoctor} submitLabel="Register Doctor">
-                        <input placeholder="Doctor ID (Keccak)" value={regForm.doctorIdKeccak} onChange={(e) => setRegForm({ ...regForm, doctorIdKeccak: e.target.value })} />
+                        <input placeholder="Public Key (Base64)" value={regForm.publicKeyBase64} onChange={(e) => setRegForm({ ...regForm, publicKeyBase64: e.target.value })} />
                         <input placeholder="Full Name" value={regForm.name} onChange={(e) => setRegForm({ ...regForm, name: e.target.value })} />
                         <input placeholder="Specialization" value={regForm.specialization} onChange={(e) => setRegForm({ ...regForm, specialization: e.target.value })} />
                         <input type="email" placeholder="Email Address" value={regForm.email} onChange={(e) => setRegForm({ ...regForm, email: e.target.value })} />

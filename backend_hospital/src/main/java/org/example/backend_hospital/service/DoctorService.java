@@ -20,17 +20,20 @@ public class DoctorService {
     private final DepartmentRepository departmentRepository;
     private final KmsClientService kmsClientService;
     private final AuthenticationService authenticationService;
+    private final UserIdKeccakService userIdKeccakService;
 
     public Doctor registerDoctor(RegisterDoctorDTO dto) {
-        if (doctorRepository.findByDoctorIdKeccak(dto.getDoctorIdKeccak()).isPresent()) {
-            throw new IllegalArgumentException("Doctor with keccak ID " + dto.getDoctorIdKeccak() + " already exists");
+        String userIdKeccak = userIdKeccakService.deriveFromPublicKeyBase64(dto.getPublicKeyBase64());
+
+        if (doctorRepository.findByDoctorIdKeccak(userIdKeccak).isPresent()) {
+            throw new IllegalArgumentException("Doctor with keccak ID " + userIdKeccak + " already exists");
         }
-        KmsAppUserDTO kmsUser = kmsClientService.getUserByKeccak(dto.getDoctorIdKeccak());
+        KmsAppUserDTO kmsUser = kmsClientService.getUserByKeccak(userIdKeccak);
         if (kmsUser == null) {
             throw new IllegalArgumentException("User data not found in KMS");
         }
         Doctor doctor = new Doctor();
-        doctor.setDoctorIdKeccak(dto.getDoctorIdKeccak());
+        doctor.setDoctorIdKeccak(userIdKeccak);
         doctor.setName(dto.getName());
         doctor.setSpecialization(dto.getSpecialization());
         doctor.setEmail(dto.getEmail());

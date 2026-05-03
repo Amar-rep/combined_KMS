@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class RegisterPatientDTO {
-    private String patientIdKeccak;
+    private String publicKeyBase64;
     private String name;
     private String email;
     private String phone;
